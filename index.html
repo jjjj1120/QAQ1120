@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <title>AI Home Screen</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style id="custom-font-style-tag"></style>
+    <style>
+        :root {
+            --text-primary: #333333;
+            --text-secondary: #888888;
+            --glass-bg: rgba(255, 255, 255, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.7);
+            --blur-level: 12px;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --edit-highlight: rgba(0, 120, 255, 0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            height: 100%; 
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center; background-color: #000;
+            overflow: hidden;
+            overscroll-behavior-y: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+        .phone-screen {
+            width: 100vw; height: 100vh;
+            max-width: 100%; max-height: 100%;
+            border-radius: 0; overflow: hidden; position: relative;
+            font-family: var(--font-main);
+            background-image: url('https://images.unsplash.com/photo-1619003309995-b95c05561335?q=80&w=1887&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            transition: background-image 0.5s ease;
+        }
+        #home-screen-page, #beautify-page, #chat-app-page { height: 100%; display: flex; flex-direction: column; width: 100%; background-color: #fff; position: absolute; top: 0; left: 0; z-index: 100; }
+        #home-screen-page { background-color: transparent; position: relative; z-index: 1; }
+        #beautify-page, #chat-app-page { display: none; }
+        
+        /* 聊天软件样式 */
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background-color: #f7f7f7; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; }
+        .chat-header h2 { font-size: 18px; margin: 0; font-weight: 600; color: #333; }
+        .chat-header-right { width: 24px; display: flex; justify-content: flex-end; }
+        .header-action-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; display: none; }
+        .chat-content-area { flex-grow: 1; overflow-y: auto; background-color: #fff; position: relative; }
+        .chat-view-panel { display: none; height: 100%; width: 100%; color: var(--text-secondary); }
+        .chat-view-panel.empty-state { flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        
+        /* 联系人列表样式 */
+        .contact-list, .chat-list { display: flex; flex-direction: column; width: 100%; }
+        .contact-item { display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .contact-item:active { background-color: #f9f9f9; }
+        .contact-item-avatar { width: 40px; height: 40px; border-radius: 4px; background-size: cover; background-position: center; margin-right: 15px; background-color: #eee; flex-shrink: 0; }
+        .contact-item-info { flex-grow: 1; display: flex; flex-direction: column; }
+        .contact-item-name { font-size: 16px; color: #333; font-weight: 500; }
+        
+        /* 添加人设全屏页面 */
+        #add-contact-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f0f0; background-image: radial-gradient(#ccc 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; }
+        .add-contact-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e5e5e5; flex-shrink: 0; position: sticky; top: 0; z-index: 10; }
+        .add-contact-header h2 { font-size: 18px; margin: 0; font-weight: 600; }
+        .save-btn { background: #07c160; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-size: 14px; cursor: pointer; }
+        .add-contact-form { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* 学生证样式卡片 */
+        .student-id-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 20px; display: flex; gap: 20px; border: 1px solid #eaeaea; }
+        .id-photo-area { width: 90px; height: 120px; background-color: #f5f5f5; border: 1px dashed #ccc; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; background-size: cover; background-position: center; position: relative; }
+        .id-photo-area i { font-size: 24px; color: #999; }
+        .id-photo-area.has-photo i { display: none; }
+        .id-info-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-around; }
+        .id-input-row { display: flex; align-items: flex-end; }
+        .id-input-row label { font-size: 14px; color: #666; width: 40px; margin-bottom: 2px; }
+        .id-input-row input { flex-grow: 1; border: none; border-bottom: 1px solid #333; padding: 4px 0; font-size: 16px; color: #333; background: transparent; outline: none; border-radius: 0; }
+        
+        /* 文本域大框 */
+        .form-section { display: flex; flex-direction: column; gap: 8px; }
+        .form-section label { font-size: 14px; font-weight: 600; color: #333; }
+        .form-section textarea { width: 100%; border: 1px solid #eaeaea; border-radius: 8px; padding: 12px; font-size: 14px; color: #333; background: white; resize: none; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .form-section textarea:focus { border-color: #07c160; }
+
+        /* 选择联系人弹窗 */
+        #select-contact-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 160; flex-direction: column; }
+        .chat-view-panel.active { display: flex; }
+        .chat-bottom-nav { display: flex; justify-content: space-around; align-items: center; padding: 10px 5px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); background-color: #f7f7f7; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
+        .chat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; cursor: pointer; flex: 1; }
+        .chat-nav-item.active { color: #07c160; }
+        .chat-nav-item i { font-size: 24px; }
+        .chat-nav-item span { font-size: 12px; }
+        .screen-content { 
+            flex-grow: 1; 
+            padding: 20px; 
+            padding-top: max(40px, env(safe-area-inset-top, 60px)); 
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            display: flex; flex-direction: column; gap: 20px; z-index: 1; 
+        }
+        .glass-widget { background: var(--glass-bg); backdrop-filter: blur(var(--blur-level)); -webkit-backdrop-filter: blur(var(--blur-level)); border: 1px solid var(--glass-border); border-radius: 24px; }
+        .profile-widget { height: 360px; padding: 15px 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; background-size: cover; background-position: center; overflow: hidden; }
+        .profile-widget::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--glass-bg); z-index: 0; pointer-events: none; }
+        .profile-widget > * { position: relative; z-index: 1; }
+        .profile-bg-btn { position: absolute; top: 10px; left: 15px; z-index: 10; cursor: pointer; background: rgba(255,255,255,0.6); border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; font-size: 16px; color: #333; backdrop-filter: blur(4px); transition: background 0.3s; }
+        .profile-bg-btn:hover { background: rgba(255,255,255,0.8); }
+        
+        .widget-header { position: relative; text-align: center; height: 70px; padding-top: 10px; }
+        .time { font-size: 48px; font-weight: 300; color: var(--text-primary); text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8), 0 0 15px rgba(255, 255, 255, 0.5); }
+        .battery { position: absolute; bottom: 5px; right: 45px; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 2px 6px; background: rgba(255,255,255,0.3); border-radius: 8px; backdrop-filter: blur(4px); text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9); box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: var(--text-primary); }
+        
+        .widget-main-content, .user-row, .widget-bottom-photos, .main-area { display: flex; }
+        .widget-main-content { flex-direction: column; justify-content: center; gap: 15px; } .user-row { align-items: center; gap: 12px; } .user-row.second-row { justify-content: flex-end; } .widget-bottom-photos, .main-area { gap: 10px; } .photo-placeholder { flex: 1; } .main-area { gap: 20px; }
+        .user-text { font-size: 16px; font-weight: 500; cursor: pointer; padding: 2px 5px; text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 255, 255, 0.6); color: var(--text-primary); background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid white; flex-shrink: 0; cursor: pointer; }
+        .avatar-sm { width: 40px; height: 40px; }
+        .photo-placeholder { height: 85px; background: rgba(255, 255, 255, 0.4); border-radius: 12px; cursor: pointer; background-size: cover; background-position: center; }
+        .photo-widget { width: 155px; height: 155px; flex-direction: column; color: var(--text-secondary); cursor: pointer; background-size: cover; background-position: center; display: flex; justify-content: center; align-items: center; }
+        
+        /* (核心修改) 当照片小组件有图片时，隐藏“添加照片”的提示 */
+        .photo-widget.has-image > i,
+        .photo-widget.has-image > span {
+            display: none;
+        }
+
+        .app-grid { display: grid; grid-template-columns: repeat(2, 70px); grid-template-rows: repeat(2, 70px); gap: 15px; }
+        .icon-customizable {
+            width: 70px; height: 70px; border-radius: 20px; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; font-size: 12px; color: var(--text-primary); cursor: pointer;
+            background-color: var(--glass-bg); background-size: cover; background-position: center; 
+            transition: background-color 0.3s; flex-shrink: 0;
+        }
+        .icon-customizable.has-custom-icon > i, .icon-customizable.has-custom-icon > span { display: none; }
+        .icon-customizable:not(.has-custom-icon):hover { background-color: rgba(255, 255, 255, 0.65); }
+        .icon-customizable i { font-size: 28px; margin-bottom: 8px; }
+        .bottom-nav {
+            position: static; margin-top: auto; height: auto; padding: 5px 10px; 
+            display: flex; justify-content: space-around; align-items: center;
+        }
+        .bottom-nav .icon-customizable { border: none; background: transparent; }
+        .bottom-nav .icon-customizable i { margin-bottom: 4px; font-size: 24px; }
+        .hidden-file-input { display: none; }
+        #beautify-page { background-color: #f7f7f7; color: #333; }
+        .beautify-header { display: flex; align-items: center; padding: 15px 20px; background-color: #fff; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; position: sticky; top: 0; z-index: 10; }
+        .beautify-header h2 { font-size: 18px; margin: 0 auto; transform: translateX(-18px); }
+        .back-btn { font-size: 24px; cursor: pointer; border: none; background: none; padding: 0; }
+        .beautify-content { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
+        .panel-section h3 { margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .option-group, .wallpaper-thumbnails, .custom-icon-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+        .wallpaper-thumb { width: 50px; height: 80px; border-radius: 8px; background-size: cover; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: border-color 0.2s; }
+        .wallpaper-thumb.active { border-color: #007aff; }
+        .upload-btn { padding: 8px 12px; background: #eee; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+        .custom-icon-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+        .icon-placeholder { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60px; background-color: #e9e9e9; border-radius: 12px; cursor: pointer; }
+        .icon-placeholder i { font-size: 24px; color: #555; }
+        .font-import-section input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; }
+        .font-import-section .upload-btn { width: 100%; padding: 10px; }
+        .font-import-section small { color: #666; font-size: 11px; margin-bottom: 5px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="phone-screen" id="phone-screen">
+    <div id="home-screen-page">
+        <div class="screen-content">
+            <div class="profile-widget glass-widget" id="profile-widget-bg">
+                 <label for="upload-profile-bg" class="profile-bg-btn"><i class='bx bx-image-add'></i></label>
+                 <div class="widget-header"><div id="time" class="time">--:--</div><div class="battery"><i id="battery-icon" class='bx bxs-battery'></i><span id="battery-level">--%</span></div></div>
+                <div class="widget-main-content">
+                    <div class="user-row">
+                        <label for="upload-avatar-1"><div class="avatar" id="image-target-avatar-1"></div></label>
+                        <span class="user-text" contenteditable="true" id="editable-text-1">心跳的距离</span>
+                    </div>
+                    <div class="user-row second-row">
+                        <span class="user-text" contenteditable="true" id="editable-text-2">字数别太多</span>
+                        <label for="upload-avatar-2"><div class="avatar avatar-sm" id="image-target-avatar-2"></div></label>
+                    </div>
+                </div>
+                <div class="widget-bottom-photos">
+                    <label for="upload-top-1" class="photo-placeholder" id="image-target-top-1"></label>
+                    <label for="upload-top-2" class="photo-placeholder" id="image-target-top-2"></label>
+                    <label for="upload-top-3" class="photo-placeholder" id="image-target-top-3"></label>
+                </div>
+            </div>
+            <div class="main-area">
+                <label for="upload-main-photo" class="photo-widget glass-widget" id="image-target-main-photo"><i class='bx bx-plus'></i><span>添加照片</span></label>
+                <div class="app-grid">
+                    <div class="icon-customizable" id="app-item-1"><i class='bx bx-chat'></i><span>聊天</span></div>
+                    <div class="icon-customizable" id="app-item-2"><i class='bx bx-book'></i><span>世界书</span></div>
+                    <div class="icon-customizable" id="app-item-3"><i class='bx bx-heart'></i><span>情侣空间</span></div>
+                    <div class="icon-customizable" id="app-item-4"><i class='bx bxs-pen'></i><span>作家协会</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav glass-widget">
+            <div class="icon-customizable" id="nav-item-1"><i class='bx bx-palette'></i><span>美化</span></div>
+            <div class="icon-customizable" id="nav-item-2"><i class='bx bx-cog'></i><span>设置</span></div>
+            <div class="icon-customizable" id="nav-item-3"><i class='bx bx-search-alt-2'></i><span>查手机</span></div>
+        </div>
+    </div>
+
+    <div id="chat-app-page">
+        <header class="chat-header">
+            <button class="back-btn" id="close-chat-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2 id="chat-header-title">聊天</h2>
+            <div class="chat-header-right">
+                <button class="header-action-btn" id="add-friend-btn"><i class='bx bx-user-plus'></i></button>
+                <button class="header-action-btn" id="add-contact-btn"><i class='bx bx-plus'></i></button>
+            </div>
+        </header>
+        
+        <div class="chat-content-area">
+            <div id="chat-view-messages" class="chat-view-panel active">
+                <div class="chat-list" id="chat-list-container"></div>
+                <div class="empty-state" id="messages-empty" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                    <i class='bx bx-message-square-dots' style="font-size: 48px; margin-bottom: 10px; color: #ccc;"></i>
+                    <p>暂无聊天记录</p>
+                </div>
+            </div>
+            <div id="chat-view-contacts" class="chat-view-panel">
+                <div class="contact-list" id="contact-list-container"></div>
+                <div class="empty-state" id="contacts-empty" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                    <i class='bx bx-user' style="font-size: 48px; margin-bottom: 10px; color: #ccc;"></i>
+                    <p>暂无联系人</p>
+                </div>
+            </div>
+            <div id="chat-view-moments" class="chat-view-panel empty-state">
+                <i class='bx bx-camera' style="font-size: 48px; margin-bottom: 10px; color: #ccc;"></i>
+                <p>暂无朋友圈动态</p>
+            </div>
+        </div>
+
+        <div class="chat-bottom-nav">
+            <div class="chat-nav-item active" data-target="messages">
+                <i class='bx bxs-message-rounded'></i>
+                <span>聊天</span>
+            </div>
+            <div class="chat-nav-item" data-target="contacts">
+                <i class='bx bxs-contact'></i>
+                <span>联系人</span>
+            </div>
+            <div class="chat-nav-item" data-target="moments">
+                <i class='bx bx-world'></i>
+                <span>朋友圈</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加人设全屏页面 -->
+    <div id="add-contact-page">
+        <header class="add-contact-header">
+            <button class="back-btn" id="close-add-contact-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2>添加人设</h2>
+            <button class="save-btn" id="save-contact-btn">保存</button>
+        </header>
+        <div class="add-contact-form">
+            <div class="student-id-card">
+                <label for="upload-contact-avatar" class="id-photo-area" id="contact-avatar-preview">
+                    <i class='bx bx-camera'></i>
+                </label>
+                <div class="id-info-area">
+                    <div class="id-input-row">
+                        <label>姓名</label>
+                        <input type="text" id="contact-input-name" placeholder="填写姓名">
+                    </div>
+                    <div class="id-input-row">
+                        <label>性别</label>
+                        <input type="text" id="contact-input-gender" placeholder="填写性别">
+                    </div>
+                    <div class="id-input-row">
+                        <label>年龄</label>
+                        <input type="text" id="contact-input-age" placeholder="填写年龄">
+                    </div>
+                </div>
+            </div>
+            <div class="form-section">
+                <label>开场白</label>
+                <textarea id="contact-input-opening" rows="3" placeholder="填写开场白..."></textarea>
+            </div>
+            <div class="form-section">
+                <label>人设介绍</label>
+                <textarea id="contact-input-desc" rows="6" placeholder="填写详细人设介绍..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- 选择联系人聊天弹窗 -->
+    <div id="select-contact-modal">
+        <header class="add-contact-header">
+            <button class="back-btn" id="close-select-contact-btn"><i class='bx bx-x'></i></button>
+            <h2>选择联系人</h2>
+            <div style="width: 48px;"></div>
+        </header>
+        <div class="chat-content-area">
+            <div class="contact-list" id="select-contact-list-container"></div>
+            <div class="empty-state" id="select-contacts-empty" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #888;">
+                <p>暂无联系人，请先添加人设</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="beautify-page">
+        <header class="beautify-header">
+            <button class="back-btn" id="back-to-home-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2>美化中心</h2>
+        </header>
+        <div class="beautify-content">
+            <div class="panel-section">
+                <h3>更换壁纸</h3>
+                <div class="wallpaper-thumbnails">
+                    <div class="wallpaper-thumb" data-wallpaper="https://images.unsplash.com/photo-1619003309995-b95c05561335?q=80&w=1887&auto=format&fit=crop"></div>
+                    <div class="wallpaper-thumb" data-wallpaper="https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=1950&auto=format&fit=crop"></div>
+                    <div class="wallpaper-thumb" data-wallpaper="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop"></div>
+                    <label for="upload-wallpaper" class="upload-btn">上传</label>
+                </div>
+            </div>
+            <div class="panel-section">
+                <h3>自定义图标</h3>
+                <div class="custom-icon-grid" id="custom-icon-grid"></div>
+            </div>
+            <div class="panel-section font-import-section">
+                <h3>导入字体</h3>
+                <small>为您的字体命名 (必填, 如: '我的字体')</small>
+                <input type="text" id="font-family-input" placeholder="例如: '未来像素字体'">
+                <small>方式一: 粘贴字体文件URL (如 GitHub Raw 链接)</small>
+                <input type="text" id="font-url-input" placeholder="https://.../myfont.ttf">
+                <small>方式二: 直接上传字体文件 (.ttf, .otf, .woff)</small>
+                <label for="font-file-input" class="upload-btn">上传字体文件</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="hidden-file-inputs">
+    <input type="file" class="hidden-file-input" id="upload-wallpaper" accept="image/*">
+    <input type="file" class="hidden-file-input" id="font-file-input" accept=".ttf,.otf,.woff,.woff2">
+    <input type="file" class="hidden-file-input" id="upload-contact-avatar" accept="image/*">
+</div>
+
+<script>
+// JavaScript部分与上一版完全相同，无需改动
+document.addEventListener('DOMContentLoaded', () => {
+    const homePage = document.getElementById('home-screen-page');
+    const beautifyPage = document.getElementById('beautify-page');
+    const beautifyBtn = document.getElementById('nav-item-1');
+    const backBtn = document.getElementById('back-to-home-btn');
+    const phoneScreen = document.getElementById('phone-screen');
+    
+    // 聊天软件相关元素
+    const chatAppBtn = document.getElementById('app-item-1');
+    const chatAppPage = document.getElementById('chat-app-page');
+    const closeChatBtn = document.getElementById('close-chat-btn');
+    const chatNavItems = document.querySelectorAll('.chat-nav-item');
+    const chatViewPanels = document.querySelectorAll('.chat-view-panel');
+    const chatHeaderTitle = document.getElementById('chat-header-title');
+    
+    // 新增按钮和页面
+    const addFriendBtn = document.getElementById('add-friend-btn');
+    const addContactBtn = document.getElementById('add-contact-btn');
+    const addContactPage = document.getElementById('add-contact-page');
+    const closeAddContactBtn = document.getElementById('close-add-contact-btn');
+    const saveContactBtn = document.getElementById('save-contact-btn');
+    const contactAvatarUpload = document.getElementById('upload-contact-avatar');
+    const contactAvatarPreview = document.getElementById('contact-avatar-preview');
+    
+    const selectContactModal = document.getElementById('select-contact-modal');
+    const closeSelectContactBtn = document.getElementById('close-select-contact-btn');
+    
+    // 数据存储
+    let contacts = JSON.parse(localStorage.getItem('chat_contacts') || '[]');
+    let chatList = JSON.parse(localStorage.getItem('chat_list') || '[]');
+    let currentContactAvatarBase64 = '';
+
+    // 渲染联系人列表
+    function renderContacts() {
+        const container = document.getElementById('contact-list-container');
+        const emptyState = document.getElementById('contacts-empty');
+        container.innerHTML = '';
+        
+        if (contacts.length === 0) {
+            emptyState.style.display = 'flex';
+        } else {
+            emptyState.style.display = 'none';
+            contacts.forEach(contact => {
+                const item = document.createElement('div');
+                item.className = 'contact-item';
+                item.innerHTML = `
+                    <div class="contact-item-avatar" style="background-image: url('${contact.avatar || ''}')"></div>
+                    <div class="contact-item-info">
+                        <div class="contact-item-name">${contact.name || '未命名'}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+    }
+
+    // 渲染聊天列表
+    function renderChatList() {
+        const container = document.getElementById('chat-list-container');
+        const emptyState = document.getElementById('messages-empty');
+        container.innerHTML = '';
+        
+        if (chatList.length === 0) {
+            emptyState.style.display = 'flex';
+        } else {
+            emptyState.style.display = 'none';
+            chatList.forEach(chat => {
+                const contact = contacts.find(c => c.id === chat.contactId);
+                if(!contact) return;
+                const item = document.createElement('div');
+                item.className = 'contact-item';
+                item.innerHTML = `
+                    <div class="contact-item-avatar" style="background-image: url('${contact.avatar || ''}')"></div>
+                    <div class="contact-item-info">
+                        <div class="contact-item-name">${contact.name || '未命名'}</div>
+                        <div style="font-size:12px; color:#888; margin-top:4px;">${contact.opening || ''}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+    }
+
+    // 渲染选择联系人列表
+    function renderSelectContacts() {
+        const container = document.getElementById('select-contact-list-container');
+        const emptyState = document.getElementById('select-contacts-empty');
+        container.innerHTML = '';
+        
+        if (contacts.length === 0) {
+            emptyState.style.display = 'flex';
+        } else {
+            emptyState.style.display = 'none';
+            contacts.forEach(contact => {
+                const item = document.createElement('div');
+                item.className = 'contact-item';
+                item.innerHTML = `
+                    <div class="contact-item-avatar" style="background-image: url('${contact.avatar || ''}')"></div>
+                    <div class="contact-item-info">
+                        <div class="contact-item-name">${contact.name || '未命名'}</div>
+                    </div>
+                `;
+                item.addEventListener('click', () => {
+                    // 添加到聊天列表
+                    if (!chatList.find(c => c.contactId === contact.id)) {
+                        chatList.push({ contactId: contact.id, lastMessageTime: Date.now() });
+                        localStorage.setItem('chat_list', JSON.stringify(chatList));
+                        renderChatList();
+                    }
+                    selectContactModal.style.display = 'none';
+                });
+                container.appendChild(item);
+            });
+        }
+    }
+
+    // 打开聊天软件
+    function switchChatTab(targetId, title) {
+        // 更新导航高亮
+        chatNavItems.forEach(nav => {
+            if (nav.dataset.target === targetId) {
+                nav.classList.add('active');
+                // 切换图标样式 (实心/空心)
+                const i = nav.querySelector('i');
+                if(targetId === 'messages') i.className = 'bx bxs-message-rounded';
+                if(targetId === 'contacts') i.className = 'bx bxs-contact';
+                if(targetId === 'moments') i.className = 'bx bx-world'; // 假设世界图标代表朋友圈
+            } else {
+                nav.classList.remove('active');
+                const i = nav.querySelector('i');
+                if(nav.dataset.target === 'messages') i.className = 'bx bx-message-rounded';
+                if(nav.dataset.target === 'contacts') i.className = 'bx bx-contact';
+                if(nav.dataset.target === 'moments') i.className = 'bx bx-world';
+            }
+        });
+
+        // 更新面板显示
+        chatViewPanels.forEach(panel => {
+            if (panel.id === `chat-view-${targetId}`) {
+                panel.classList.add('active');
+            } else {
+                panel.classList.remove('active');
+            }
+        });
+
+        // 更新标题
+        chatHeaderTitle.innerText = title;
+        
+        // 更新右上角按钮显示
+        addFriendBtn.style.display = targetId === 'messages' ? 'block' : 'none';
+        addContactBtn.style.display = targetId === 'contacts' ? 'block' : 'none';
+        
+        if (targetId === 'contacts') renderContacts();
+        if (targetId === 'messages') renderChatList();
+    }
+
+    // 添加联系人页面逻辑
+    addContactBtn.addEventListener('click', () => {
+        addContactPage.style.display = 'flex';
+        // 清空表单
+        document.getElementById('contact-input-name').value = '';
+        document.getElementById('contact-input-gender').value = '';
+        document.getElementById('contact-input-age').value = '';
+        document.getElementById('contact-input-opening').value = '';
+        document.getElementById('contact-input-desc').value = '';
+        contactAvatarPreview.style.backgroundImage = 'none';
+        contactAvatarPreview.classList.remove('has-photo');
+        currentContactAvatarBase64 = '';
+    });
+
+    closeAddContactBtn.addEventListener('click', () => {
+        addContactPage.style.display = 'none';
+    });
+
+    contactAvatarUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            currentContactAvatarBase64 = event.target.result;
+            contactAvatarPreview.style.backgroundImage = `url('${currentContactAvatarBase64}')`;
+            contactAvatarPreview.classList.add('has-photo');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    saveContactBtn.addEventListener('click', () => {
+        const name = document.getElementById('contact-input-name').value.trim();
+        if (!name) { alert('请输入姓名'); return; }
+        
+        const newContact = {
+            id: 'c_' + Date.now(),
+            name: name,
+            gender: document.getElementById('contact-input-gender').value.trim(),
+            age: document.getElementById('contact-input-age').value.trim(),
+            opening: document.getElementById('contact-input-opening').value.trim(),
+            desc: document.getElementById('contact-input-desc').value.trim(),
+            avatar: currentContactAvatarBase64
+        };
+        
+        contacts.push(newContact);
+        localStorage.setItem('chat_contacts', JSON.stringify(contacts));
+        
+        renderContacts();
+        addContactPage.style.display = 'none';
+    });
+
+    // 添加好友到聊天列表逻辑
+    addFriendBtn.addEventListener('click', () => {
+        renderSelectContacts();
+        selectContactModal.style.display = 'flex';
+    });
+
+    closeSelectContactBtn.addEventListener('click', () => {
+        selectContactModal.style.display = 'none';
+    });
+
+    beautifyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        homePage.style.display = 'none';
+        beautifyPage.style.display = 'flex';
+    });
+
+    chatAppBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        homePage.style.display = 'none';
+        chatAppPage.style.display = 'flex';
+        // 每次进入默认显示聊天页面
+        switchChatTab('messages', '聊天');
+    });
+
+    // 关闭聊天软件
+    closeChatBtn.addEventListener('click', () => {
+        homePage.style.display = 'flex';
+        chatAppPage.style.display = 'none';
+    });
+
+    // 聊天底部导航切换
+    chatNavItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const target = item.dataset.target;
+            const title = item.querySelector('span').innerText;
+            switchChatTab(target, title);
+        });
+    });
+
+    function switchChatTab(targetId, title) {
+        // 更新导航高亮
+        chatNavItems.forEach(nav => {
+            if (nav.dataset.target === targetId) {
+                nav.classList.add('active');
+                // 切换图标样式 (实心/空心)
+                const i = nav.querySelector('i');
+                if(targetId === 'messages') i.className = 'bx bxs-message-rounded';
+                if(targetId === 'contacts') i.className = 'bx bxs-contact';
+                if(targetId === 'moments') i.className = 'bx bx-world'; // 假设世界图标代表朋友圈
+            } else {
+                nav.classList.remove('active');
+                const i = nav.querySelector('i');
+                if(nav.dataset.target === 'messages') i.className = 'bx bx-message-rounded';
+                if(nav.dataset.target === 'contacts') i.className = 'bx bx-contact';
+                if(nav.dataset.target === 'moments') i.className = 'bx bx-world';
+            }
+        });
+
+        // 更新面板显示
+        chatViewPanels.forEach(panel => {
+            if (panel.id === `chat-view-${targetId}`) {
+                panel.classList.add('active');
+            } else {
+                panel.classList.remove('active');
+            }
+        });
+
+        // 更新标题
+        chatHeaderTitle.innerText = title;
+    }
+
+    beautifyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        homePage.style.display = 'none';
+        beautifyPage.style.display = 'flex';
+    });
+    backBtn.addEventListener('click', () => {
+        homePage.style.display = 'flex';
+        beautifyPage.style.display = 'none';
+    });
+    const wallpaperThumbs = document.querySelectorAll('.wallpaper-thumb');
+    const uploadWallpaperInput = document.getElementById('upload-wallpaper');
+    const applyWallpaper = (url) => {
+        phoneScreen.style.backgroundImage = `url(${url})`;
+        localStorage.setItem('selectedWallpaper', url);
+        wallpaperThumbs.forEach(t => t.classList.remove('active'));
+        const activeThumb = [...wallpaperThumbs].find(t => t.dataset.wallpaper === url);
+        if (activeThumb) activeThumb.classList.add('active');
+    };
+    wallpaperThumbs.forEach(thumb => {
+        thumb.style.backgroundImage = `url(${thumb.dataset.wallpaper})`;
+        thumb.addEventListener('click', () => applyWallpaper(thumb.dataset.wallpaper));
+    });
+    uploadWallpaperInput.addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => applyWallpaper(event.target.result);
+        reader.readAsDataURL(file);
+    });
+    const customIconGrid = document.getElementById('custom-icon-grid');
+    const customizableIcons = document.querySelectorAll('.icon-customizable');
+    const hiddenInputsContainer = document.getElementById('hidden-file-inputs');
+    const applyCustomIcon = (itemId, imageUrl) => {
+        const item = document.getElementById(itemId);
+        if(item) {
+            item.style.backgroundImage = `url('${imageUrl}')`;
+            item.classList.add('has-custom-icon');
+            localStorage.setItem(`custom-icon-${itemId}`, imageUrl);
+        }
+    };
+    customizableIcons.forEach(iconItem => {
+        const itemId = iconItem.id;
+        if (!itemId) return;
+        const originalIconHTML = iconItem.querySelector('i')?.outerHTML || '';
+        const placeholder = document.createElement('label');
+        placeholder.htmlFor = `upload-icon-${itemId}`;
+        placeholder.className = 'icon-placeholder';
+        placeholder.innerHTML = originalIconHTML;
+        customIconGrid.appendChild(placeholder);
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = `upload-icon-${itemId}`;
+        fileInput.className = 'hidden-file-input';
+        fileInput.accept = 'image/*';
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => applyCustomIcon(itemId, event.target.result);
+            reader.readAsDataURL(file);
+        });
+        hiddenInputsContainer.appendChild(fileInput);
+    });
+    const fontFamilyInput = document.getElementById('font-family-input');
+    const fontUrlInput = document.getElementById('font-url-input');
+    const fontFileInput = document.getElementById('font-file-input');
+    const fontStyleTag = document.getElementById('custom-font-style-tag');
+    const applyAndSaveFont = ({ family, url, dataUrl }) => {
+        if (!family) { alert('必须为字体命名！'); return; }
+        let src = '';
+        if (url) src = `url('${url}')`;
+        if (dataUrl) src = `url('${dataUrl}')`;
+        if (!src) { return; }
+        const fontFaceRule = `@font-face { font-family: '${family}'; src: ${src}; }`;
+        fontStyleTag.innerHTML = fontFaceRule;
+        document.documentElement.style.setProperty('--font-main', `'${family}', sans-serif`);
+        localStorage.setItem('customFontFamily', family);
+        localStorage.setItem('customFontUrl', url || '');
+        localStorage.setItem('customFontDataUrl', dataUrl || '');
+        if(!localStorage.getItem('font-alert-shown')){alert(`字体 '${family}' 已应用!`);localStorage.setItem('font-alert-shown','true')}
+    };
+    fontUrlInput.addEventListener('blur', () => {
+        localStorage.removeItem('font-alert-shown');
+        const family = fontFamilyInput.value.trim();
+        const url = fontUrlInput.value.trim();
+        if (family && url) applyAndSaveFont({ family, url });
+    });
+    fontFileInput.addEventListener('change', (e) => {
+        localStorage.removeItem('font-alert-shown');
+        const file = e.target.files[0];
+        const family = fontFamilyInput.value.trim();
+        if (!file || !family) { alert('上传文件前，请先为字体命名!'); e.target.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = (event) => { applyAndSaveFont({ family: family, dataUrl: event.target.result }); };
+        reader.readAsDataURL(file);
+    });
+    const createWidgetFileInput=(id,target)=>{const i=document.createElement('input');i.type='file';i.id=id;i.className='hidden-file-input';i.accept='image/*';i.dataset.target=target;hiddenInputsContainer.appendChild(i);return i;};
+    const widgetInputs=[['upload-top-1','image-target-top-1'],['upload-top-2','image-target-top-2'],['upload-top-3','image-target-top-3'],['upload-avatar-1','image-target-avatar-1'],['upload-avatar-2','image-target-avatar-2'],['upload-main-photo','image-target-main-photo'],['upload-profile-bg','profile-widget-bg']];
+    widgetInputs.forEach(([id,target])=>{const i=createWidgetFileInput(id,target);i.addEventListener('change',handleWidgetImageUpload)});
+    function handleWidgetImageUpload(event){const i=event.target,f=i.files[0];if(!f)return;const r=new FileReader;r.onload=e=>{const t=e.target.result,a=i.dataset.target,n=document.getElementById(a);if(n){n.style.backgroundImage=`url(${t})`;if(n.classList.contains('photo-widget'))n.classList.add('has-image');localStorage.setItem(a,t)}};r.readAsDataURL(f)}
+    const loadWidgetImages=()=>{widgetInputs.forEach(([id,target])=>{const s=localStorage.getItem(target);if(s){const e=document.getElementById(target);if(e){e.style.backgroundImage=`url(${s})`;if(e.classList.contains('photo-widget'))e.classList.add('has-image');if(target==='profile-widget-bg')e.style.backgroundSize='cover';}}})};
+    const editableTexts=document.querySelectorAll('[contenteditable="true"]');
+    editableTexts.forEach(el=>el.addEventListener('blur',()=>localStorage.setItem(el.id,el.innerText)));
+    const loadTexts=()=>editableTexts.forEach(el=>{const s=localStorage.getItem(el.id);if(s)el.innerText=s;});
+    const updateTime=()=>{const e=document.getElementById('time');if(e){const n=new Date,h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');e.textContent=`${h}:${m}`}};
+    const initBatteryAPI=()=>{const i=document.getElementById('battery-icon'),l=document.getElementById('battery-level');if('getBattery' in navigator){navigator.getBattery().then(b=>{const u=()=>{l.textContent=`${Math.round(b.level*100)}%`;i.className=b.charging?'bx bxs-battery-charging':'bx bxs-battery'};u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u)})}else{i.parentElement.style.display='none'}};
+    const loadSettings=()=>{
+        loadWidgetImages();
+        loadTexts();
+        updateTime();
+        initBatteryAPI();
+        setInterval(updateTime,10000);
+        const savedWallpaper=localStorage.getItem('selectedWallpaper');
+        if(savedWallpaper)applyWallpaper(savedWallpaper);
+        customizableIcons.forEach(item=>{const savedIcon=localStorage.getItem(`custom-icon-${item.id}`);if(savedIcon)applyCustomIcon(item.id,savedIcon);});
+        localStorage.setItem('font-alert-shown', 'true');
+        const savedFontFamily=localStorage.getItem('customFontFamily');
+        if(savedFontFamily){
+            const savedFontUrl=localStorage.getItem('customFontUrl');
+            const savedFontDataUrl=localStorage.getItem('customFontDataUrl');
+            applyAndSaveFont({family:savedFontFamily,url:savedFontUrl,dataUrl:savedFontDataUrl});
+            fontFamilyInput.value=savedFontFamily;
+            if(savedFontUrl)fontUrlInput.value=savedFontUrl;
+        }
+        localStorage.removeItem('font-alert-shown');
+    };
+    loadSettings();
+
+    // 防止 iOS 橡皮筋效果
+    document.body.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+});
+</script>
+</body>
+</html>
