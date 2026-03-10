@@ -190,6 +190,18 @@
         /* 撤回消息 */
         .msg-recalled { text-align: center; font-size: 12px; color: #999; margin: 10px 0; width: 100%; }
 
+        /* 多选模式样式 */
+        .msg-checkbox { display: none; width: 22px; height: 22px; border-radius: 50%; border: 1px solid #ccc; margin-right: 10px; flex-shrink: 0; align-items: center; justify-content: center; }
+        .msg-checkbox.checked { background-color: #07c160; border-color: #07c160; color: white; }
+        .msg-checkbox.checked::after { content: '\2713'; font-size: 14px; }
+        .multi-select-mode .msg-checkbox { display: flex; cursor: pointer; }
+        .multi-select-mode .msg-row { padding-left: 10px; width: 100%; align-items: center; }
+        .multi-select-mode .msg-row.sent { justify-content: flex-start; } /* 多选时自己发的消息也靠左方便点击 */
+        
+        .multi-select-bar { display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(245, 245, 245, 0.95); backdrop-filter: blur(15px); border-top: 1px solid rgba(0,0,0,0.05); z-index: 100; justify-content: space-between; align-items: center; padding: 0 20px; padding-bottom: env(safe-area-inset-bottom, 0); }
+        .multi-select-mode ~ .multi-select-bar { display: flex; }
+        .multi-select-mode ~ .conv-bottom-container { display: none !important; }
+
         /* 底部输入框与抽屉 */
         .conv-bottom-container { display: flex; flex-direction: column; background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(0,0,0,0.05); z-index: 10; }
         .conv-input-area { display: flex; align-items: flex-end; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); gap: 10px; }
@@ -582,9 +594,16 @@
         <div id="msg-context-menu" class="msg-context-menu">
             <div class="msg-context-menu-item" id="menu-item-quote">引用</div>
             <div class="msg-context-menu-item" id="menu-item-recall">撤回</div>
+            <div class="msg-context-menu-item" id="menu-item-multiselect">多选</div>
             <div class="msg-context-menu-item danger" id="menu-item-delete">删除</div>
         </div>
-        <div class="conv-bottom-container">
+        
+        <div class="multi-select-bar" id="multi-select-bar">
+            <button style="background:none; border:none; color:#555; font-size:16px; font-weight:600; cursor:pointer;" id="multi-select-cancel">取消</button>
+            <button style="background:none; border:none; color:#ff3b30; font-size:24px; cursor:pointer;" id="multi-select-delete-btn"><i class='bx bx-trash'></i></button>
+        </div>
+
+        <div class="conv-bottom-container" id="conv-bottom-container">
             <div class="quote-preview-area" id="quote-preview-area">
                 <span id="quote-preview-text"></span>
                 <i class='bx bx-x quote-preview-close' id="quote-preview-close"></i>
@@ -809,6 +828,120 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatDrawerPlus = document.getElementById('chat-drawer-plus');
     const chatDrawerSmile = document.getElementById('chat-drawer-smile');
     
+    // --- 消息交互相关变量 ---
+    let selectedMsgIndex = null;
+    let isMultiSelectMode = false;
+    let selectedMsgIndices = new Set();
+    window.currentQuoteText = ''; // 用window挂载方便sendMsg访问
+    const msgContextMenu = document.getElementById('msg-context-menu');
+    const menuItemQuote = document.getElementById('menu-item-quote');
+    const menuItemRecall = document.getElementById('menu-item-recall');
+    const menuItemDelete = document.getElementById('menu-item-delete');
+    const menuItemMultiselect = document.getElementById('menu-item-multiselect');
+    const quotePreviewArea = document.getElementById('quote-preview-area');
+    const quotePreviewText = document.getElementById('quote-preview-text');
+    const quotePreviewClose = document.getElementById('quote-preview-close');
+    const multiSelectBar = document.getElementById('multi-select-bar');
+    const multiSelectCancel = document.getElementById('multi-select-cancel');
+    const multiSelectDeleteBtn = document.getElementById('multi-select-delete-btn');
+    const convBottomContainer = document.getElementById('conv-bottom-container');
+
+    // 双击气泡
+    convMessagesContainer.addEventListener('dblclick', (e) => {
+        const bubble = e.target.closest('.msg-bubble');
+        if (!bubble) return;
+        
+        selectedMsgIndex = parseInt(bubble.dataset.index);
+        const rect = bubble.getBoundingClientRect();
+        
+        msgContextMenu.style.display = 'flex';
+        let top = rect.top - msgContextMenu.offsetHeight - 10;
+        let left = rect.left + (rect.width / 2) - (msgContextMenu.offsetWidth / 2);
+        
+        if (top < 50) top = rect.bottom + 10; // 如果上方空间不足，显示在下方
+        if (left < 10) left = 10;
+        if (left + msgContextMenu.offsetWidth > window.innerWidth - 10) {
+            left = window.innerWidth - msgContextMenu.offsetWidth - 10;
+        }
+        
+        msgContextMenu.style.top = `${top}px`;
+        msgContextMenu.style.left = `${left}px`;
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.msg-context-menu') && !e.target.closest('.msg-bubble')) {
+            msgContextMenu.style.display = 'none';
+        }
+    });
+
+    menuItemDelete.addEventListener('click', () => {
+        if (selectedMsgIndex === null || !currentActiveContactId) return;
+        messagesData[currentActiveContactId].splice(selectedMsgIndex, 1);
+        localStorage.setItem('chat_messages', JSON.stringify(messagesData));
+        renderMessages();
+        msgContextMenu.style.display = 'none';
+    });
+
+    menuItemMultiselect.addEventListener('click', () => {
+        isMultiSelectMode = true;
+        selectedMsgIndices.clear();
+        msgContextMenu.style.display = 'none';
+        convMessagesContainer.classList.add('multi-select-mode');
+        renderMessages();
+    });
+
+    multiSelectCancel.addEventListener('click', () => {
+        isMultiSelectMode = false;
+        selectedMsgIndices.clear();
+        convMessagesContainer.classList.remove('multi-select-mode');
+        renderMessages();
+    });
+
+    multiSelectDeleteBtn.addEventListener('click', () => {
+        if (selectedMsgIndices.size === 0) return;
+        if (!confirm(`确定要删除选中的 ${selectedMsgIndices.size} 条消息吗？`)) return;
+        
+        let indicesArray = Array.from(selectedMsgIndices).sort((a,b) => b - a);
+        indicesArray.forEach(idx => {
+            messagesData[currentActiveContactId].splice(idx, 1);
+        });
+        localStorage.setItem('chat_messages', JSON.stringify(messagesData));
+        
+        isMultiSelectMode = false;
+        selectedMsgIndices.clear();
+        convMessagesContainer.classList.remove('multi-select-mode');
+        renderMessages();
+    });
+
+    menuItemRecall.addEventListener('click', () => {
+        if (selectedMsgIndex === null || !currentActiveContactId) return;
+        messagesData[currentActiveContactId][selectedMsgIndex].recalled = true;
+        localStorage.setItem('chat_messages', JSON.stringify(messagesData));
+        renderMessages();
+        msgContextMenu.style.display = 'none';
+    });
+
+    menuItemQuote.addEventListener('click', () => {
+        if (selectedMsgIndex === null || !currentActiveContactId) return;
+        const msg = messagesData[currentActiveContactId][selectedMsgIndex];
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = msg.text;
+        let textOnly = tempDiv.textContent || tempDiv.innerText || '[图片/表情包]';
+        
+        window.currentQuoteText = textOnly;
+        quotePreviewText.innerText = `引用: ${window.currentQuoteText}`;
+        quotePreviewArea.style.display = 'block';
+        msgContextMenu.style.display = 'none';
+        convMsgInput.focus();
+    });
+
+    quotePreviewClose.addEventListener('click', () => {
+        window.currentQuoteText = '';
+        quotePreviewArea.style.display = 'none';
+    });
+    // ----------------------
+    
     const roleProfilePage = document.getElementById('role-profile-page');
     const closeRpBtn = document.getElementById('close-rp-btn');
     const saveRpBtn = document.getElementById('save-rp-btn');
@@ -864,6 +997,128 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    chatAiBtn.addEventListener('click', async () => {
+        if (!currentActiveContactId) return;
+        
+        const apiData = JSON.parse(localStorage.getItem('api_settings') || '{}');
+        if (!apiData.url || !apiData.key || !apiData.modelName) {
+            alert('请先在设置中配置API地址、秘钥和模型名称。');
+            return;
+        }
+
+        const contact = contacts.find(c => c.id === currentActiveContactId);
+        const profile = roleProfiles[currentActiveContactId] || {};
+        const msgs = messagesData[currentActiveContactId] || [];
+        
+        const originalIcon = chatAiBtn.innerHTML;
+        chatAiBtn.innerHTML = `<i class='bx bx-loader-alt spin'></i>`;
+        chatAiBtn.disabled = true;
+
+        let systemPrompt = `你扮演角色：${contact.name}。
+基本设定：性别 ${contact.gender || '未知'}，年龄 ${contact.age || '未知'}。
+详细人设：${contact.desc || '暂无'}
+请遵循线上聊天规则，要有活人感，采用短讯式回复，不要长篇大论。
+`;
+        if (profile.userPersona) systemPrompt += `\n【用户人设】\n${profile.userPersona}\n`;
+        if (profile.memory) systemPrompt += `\n【总结记忆】\n${profile.memory}\n`;
+
+        if (profile.wbId) {
+            const allWbs = worldBooks.global.concat(worldBooks.local);
+            const boundWb = allWbs.find(x => x.id === profile.wbId);
+            if (boundWb) {
+                systemPrompt += `\n【世界书设定】\n`;
+                if (boundWb.type === 'item') {
+                    systemPrompt += `${boundWb.title}: ${boundWb.content}\n`;
+                } else if (boundWb.type === 'folder') {
+                    const items = allWbs.filter(x => x.parentId === boundWb.id && x.type === 'item');
+                    items.forEach(item => {
+                        systemPrompt += `${item.title}: ${item.content}\n`;
+                    });
+                }
+            }
+        }
+
+        let boundStickers = [];
+        if (profile.stickerGroupId) {
+            const group = stickerGroups.find(g => g.id === profile.stickerGroupId);
+            if (group && group.stickers.length > 0) {
+                boundStickers = group.stickers;
+                systemPrompt += `\n【你可以使用以下表情包】\n在回复中，你可以随时输出 [表情包:名称] 来发送表情。可用表情名称列表：${boundStickers.map(s => s.name).join(', ')}。\n`;
+            }
+        }
+
+        let apiMessages = [{ role: 'system', content: systemPrompt }];
+        
+        msgs.forEach(msg => {
+            let role = msg.sender === 'me' ? 'user' : 'assistant';
+            let content = '';
+            
+            if (msg.recalled) {
+                content = `[系统提示: ${role === 'user' ? '用户' : '你'}撤回了一条消息]`;
+                apiMessages.push({ role: role, content: content });
+                return;
+            }
+            
+            if (msg.quote) {
+                content += `> 引用: ${msg.quote}\n`;
+            }
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = msg.text;
+            const imgs = tempDiv.querySelectorAll('img');
+            imgs.forEach(img => {
+                const alt = img.getAttribute('alt');
+                if (alt) img.replaceWith(document.createTextNode(alt));
+            });
+            content += tempDiv.textContent || tempDiv.innerText;
+            
+            apiMessages.push({ role: role, content: content });
+        });
+
+        try {
+            let url = apiData.url;
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            if (!url.endsWith('/chat/completions')) url += '/chat/completions';
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiData.key}`
+                },
+                body: JSON.stringify({
+                    model: apiData.modelName,
+                    messages: apiMessages
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            
+            const result = await response.json();
+            let aiReply = result.choices[0].message.content;
+            
+            if (boundStickers.length > 0) {
+                aiReply = aiReply.replace(/\[表情包:(.*?)\]/g, (match, name) => {
+                    const sticker = boundStickers.find(s => s.name === name);
+                    if (sticker) {
+                        return `<img src="${sticker.url}" alt="[表情包:${sticker.name}]" style="max-width:120px; border-radius:8px;">`;
+                    }
+                    return match;
+                });
+            }
+
+            aiReply = aiReply.replace(/\n/g, '<br>');
+            sendMsg('them', aiReply);
+
+        } catch (error) {
+            console.error('API Call Error:', error);
+            alert('AI 回复失败: ' + error.message);
+        } finally {
+            chatAiBtn.innerHTML = originalIcon;
+            chatAiBtn.disabled = false;
+        }
+    });
+
     convMsgInput.addEventListener('focus', hideAllDrawers);
 
     // 头像点击心声
@@ -891,7 +1146,12 @@ document.addEventListener('DOMContentLoaded', () => {
             rpStickerGroupSelect.appendChild(opt);
         });
         
+        if (typeof renderWbSelectOptions === 'function') {
+            renderWbSelectOptions();
+        }
+
         const profile = roleProfiles[currentActiveContactId] || {};
+        rpWorldbookSelect.value = profile.wbId || '';
         rpStickerGroupSelect.value = profile.stickerGroupId || '';
         rpAutoMemory.checked = profile.autoMem || false;
         rpMemoryContent.value = profile.memory || '';
@@ -1344,9 +1604,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const msg = msgs[i];
             const isMe = msg.sender === 'me';
             
+            // 撤回的消息
+            if (msg.recalled) {
+                const row = document.createElement('div');
+                row.className = 'msg-recalled';
+                row.innerText = isMe ? '你撤回了一条消息' : `"${contact.name || '对方'}" 撤回了一条消息`;
+                convMessagesContainer.appendChild(row);
+                continue;
+            }
+            
             // 判断是否是连续发消息
-            const isPrevSame = i > 0 && msgs[i-1].sender === msg.sender;
-            const isNextSame = i < msgs.length - 1 && msgs[i+1].sender === msg.sender;
+            let isPrevSame = false;
+            if (i > 0) {
+                let prev = msgs[i-1];
+                if (!prev.recalled && prev.sender === msg.sender) isPrevSame = true;
+            }
+            let isNextSame = false;
+            if (i < msgs.length - 1) {
+                let next = msgs[i+1];
+                if (!next.recalled && next.sender === msg.sender) isNextSame = true;
+            }
             
             const row = document.createElement('div');
             row.className = `msg-row ${isMe ? 'sent' : 'received'}`;
@@ -1356,10 +1633,32 @@ document.addEventListener('DOMContentLoaded', () => {
             // 连续消息处理：不是第一条则隐藏头像
             if (isPrevSame) row.classList.add('hide-avatar');
 
+            let quoteHtml = '';
+            if (msg.quote) {
+                quoteHtml = `<div class="msg-quote">${msg.quote}</div>`;
+            }
+
+            let checkboxHtml = `<div class="msg-checkbox ${selectedMsgIndices.has(i) ? 'checked' : ''}" data-index="${i}"></div>`;
+
             row.innerHTML = `
+                ${checkboxHtml}
                 <div class="msg-avatar" style="background-image: url('${avatarUrl}')"></div>
-                <div class="msg-bubble">${msg.text}</div>
+                <div class="msg-bubble" data-index="${i}">${quoteHtml}${msg.text}</div>
             `;
+            
+            row.addEventListener('click', (e) => {
+                if (isMultiSelectMode) {
+                    const cb = row.querySelector('.msg-checkbox');
+                    if (selectedMsgIndices.has(i)) {
+                        selectedMsgIndices.delete(i);
+                        cb.classList.remove('checked');
+                    } else {
+                        selectedMsgIndices.add(i);
+                        cb.classList.add('checked');
+                    }
+                }
+            });
+
             convMessagesContainer.appendChild(row);
         }
     }
@@ -1377,11 +1676,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!currentActiveContactId) return;
         if(!messagesData[currentActiveContactId]) messagesData[currentActiveContactId] = [];
         
-        messagesData[currentActiveContactId].push({
+        const newMsg = {
             sender: sender,
             text: text,
             time: Date.now()
-        });
+        };
+        
+        if (sender === 'me' && window.currentQuoteText) {
+            newMsg.quote = window.currentQuoteText;
+            window.currentQuoteText = '';
+            document.getElementById('quote-preview-area').style.display = 'none';
+        }
+
+        messagesData[currentActiveContactId].push(newMsg);
         localStorage.setItem('chat_messages', JSON.stringify(messagesData));
         renderMessages();
         setTimeout(() => { convMessagesContainer.scrollTop = convMessagesContainer.scrollHeight; }, 50);
