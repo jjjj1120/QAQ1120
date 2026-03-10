@@ -104,11 +104,14 @@
         .api-form-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; display: flex; flex-direction: column; gap: 16px; }
         .api-input-group { display: flex; flex-direction: column; gap: 8px; }
         .api-input-group label { font-size: 14px; font-weight: 600; color: #555; }
-        .api-input-group input { width: 100%; border: none; border-bottom: 1px solid #ccc; padding: 8px 0; font-size: 15px; color: #333; background: transparent; outline: none; border-radius: 0; transition: border-color 0.2s; }
-        .api-input-group input:focus { border-bottom-color: #555; }
-        .fetch-btn { background: #e0e0e0; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+        .api-input-group input, .api-input-group select { width: 100%; border: none; border-bottom: 1px solid #ccc; padding: 8px 0; font-size: 15px; color: #333; background: transparent; outline: none; border-radius: 0; transition: border-color 0.2s; appearance: none; }
+        .api-input-group input:focus, .api-input-group select:focus { border-bottom-color: #555; }
+        .fetch-btn { background: #e0e0e0; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .fetch-btn:hover { background: #d0d0d0; }
         .fetch-btn:active { background: #c0c0c0; transform: scale(0.98); }
+        .fetch-btn i.spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #model-select-group { display: none; }
 
         /* === 世界书页面样式 === */
         #worldbook-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; z-index: 150; flex-direction: column; }
@@ -422,10 +425,6 @@
         <div class="api-form-container">
             <div class="api-form-card">
                 <div class="api-input-group">
-                    <label>模型名称</label>
-                    <input type="text" id="api-model-name" placeholder="例如: gpt-4o, gemini-pro">
-                </div>
-                <div class="api-input-group">
                     <label>URL地址</label>
                     <input type="text" id="api-url" placeholder="例如: https://api.openai.com/v1">
                 </div>
@@ -433,7 +432,20 @@
                     <label>API秘钥</label>
                     <input type="password" id="api-key" placeholder="sk-...">
                 </div>
-                <button class="fetch-btn" id="fetch-models-btn">拉取模型</button>
+                <div class="api-input-group">
+                    <label>手动输入模型名称</label>
+                    <input type="text" id="api-model-name" placeholder="例如: gpt-4o (可选)">
+                </div>
+                <button class="fetch-btn" id="fetch-models-btn"><span>拉取模型列表</span></button>
+                <div class="api-input-group" id="model-select-group">
+                    <label>选择模型</label>
+                    <div style="position: relative;">
+                        <select id="api-model-select">
+                            <option value="">请选择拉取到的模型...</option>
+                        </select>
+                        <i class='bx bx-chevron-down' style="position: absolute; right: 0; top: 10px; color: #888; pointer-events: none;"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -626,13 +638,94 @@ document.addEventListener('DOMContentLoaded', () => {
     const wbAddContentBtn = document.getElementById('wb-add-content-btn');
     const closeWbAddBtn = document.getElementById('close-wb-add-btn');
     
+    // API设置相关元素
+    const fetchModelsBtn = document.getElementById('fetch-models-btn');
+    const modelSelectGroup = document.getElementById('model-select-group');
+    const apiModelSelect = document.getElementById('api-model-select');
+    const apiModelNameInput = document.getElementById('api-model-name');
+
     // 初始化API设置数据
     const loadApiSettings = () => {
         const apiData = JSON.parse(localStorage.getItem('api_settings') || '{}');
-        document.getElementById('api-model-name').value = apiData.modelName || '';
+        apiModelNameInput.value = apiData.modelName || '';
         document.getElementById('api-url').value = apiData.url || '';
         document.getElementById('api-key').value = apiData.key || '';
+        
+        if (apiData.fetchedModels && apiData.fetchedModels.length > 0) {
+            populateModelSelect(apiData.fetchedModels);
+            apiModelSelect.value = apiData.selectedModel || '';
+            modelSelectGroup.style.display = 'flex';
+        }
     };
+
+    function populateModelSelect(models) {
+        apiModelSelect.innerHTML = '<option value="">请选择模型...</option>';
+        models.forEach(model => {
+            const opt = document.createElement('option');
+            opt.value = model.id;
+            opt.textContent = model.id;
+            apiModelSelect.appendChild(opt);
+        });
+        modelSelectGroup.style.display = 'flex';
+    }
+
+    fetchModelsBtn.addEventListener('click', async () => {
+        let url = document.getElementById('api-url').value.trim();
+        const key = document.getElementById('api-key').value.trim();
+        
+        if (!url || !key) {
+            alert('请先填写URL和API秘钥');
+            return;
+        }
+
+        // 规范化URL
+        if (url.endsWith('/')) url = url.slice(0, -1);
+        if (!url.endsWith('/v1')) url += '/v1';
+        const modelsUrl = `${url}/models`;
+
+        const originalHtml = fetchModelsBtn.innerHTML;
+        fetchModelsBtn.innerHTML = `<i class='bx bx-loader-alt spin'></i><span>拉取中...</span>`;
+        fetchModelsBtn.disabled = true;
+
+        try {
+            const response = await fetch(modelsUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${key}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            if (data && data.data && Array.isArray(data.data)) {
+                populateModelSelect(data.data);
+                // 自动选择第一个
+                if(data.data.length > 0) apiModelSelect.value = data.data[0].id;
+                
+                // 暂时保存拉取到的列表到本地存储，以便重新打开时还能看到
+                const apiData = JSON.parse(localStorage.getItem('api_settings') || '{}');
+                apiData.fetchedModels = data.data;
+                localStorage.setItem('api_settings', JSON.stringify(apiData));
+            } else {
+                throw new Error('返回数据格式不正确');
+            }
+        } catch (error) {
+            console.error('Fetch models error:', error);
+            alert('拉取模型失败，请检查URL、秘钥或网络连接。\n错误信息: ' + error.message);
+        } finally {
+            fetchModelsBtn.innerHTML = originalHtml;
+            fetchModelsBtn.disabled = false;
+        }
+    });
+
+    apiModelSelect.addEventListener('change', () => {
+        // 当选择了下拉框的模型时，同步到名称输入框
+        if(apiModelSelect.value) {
+            apiModelNameInput.value = apiModelSelect.value;
+        }
+    });
 
     // 设置页面路由逻辑
     settingsBtn.addEventListener('click', (e) => {
@@ -654,14 +747,23 @@ document.addEventListener('DOMContentLoaded', () => {
         apiSettingsPage.style.display = 'none';
     });
     saveApiBtn.addEventListener('click', () => {
+        // 优先使用手动输入的模型名称，如果没有，则使用下拉框选中的
+        let finalModel = apiModelNameInput.value.trim();
+        if(!finalModel && apiModelSelect.value) {
+            finalModel = apiModelSelect.value;
+        }
+
+        const currentData = JSON.parse(localStorage.getItem('api_settings') || '{}');
         const apiData = {
-            modelName: document.getElementById('api-model-name').value.trim(),
+            ...currentData,
+            modelName: finalModel,
+            selectedModel: apiModelSelect.value,
             url: document.getElementById('api-url').value.trim(),
             key: document.getElementById('api-key').value.trim()
         };
         localStorage.setItem('api_settings', JSON.stringify(apiData));
         apiSettingsPage.style.display = 'none';
-        // 不弹出原生alert，使用平滑过渡或静默保存符合韩系高级感
+        // 不弹出原生alert，静默保存符合韩系高级感
     });
 
     // 世界书页面逻辑
