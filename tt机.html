@@ -26,7 +26,6 @@
             margin: 0; padding: 0;
             display: flex; justify-content: center; align-items: center; background-color: #000;
             overflow: hidden;
-            overscroll-behavior-y: none;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
@@ -35,7 +34,8 @@
         /* 针对所有滚动区域启用硬件加速和流畅滚动 */
         .chat-content-area, #add-contact-page, #settings-page, #api-settings-page, .wb-content-area, .conv-messages-area, .conv-drawer, #role-profile-page, .beautify-content, .sticker-grid, .sticker-drawer-tabs, .wb-grid {
             -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
+            touch-action: pan-y !important;
+            overscroll-behavior-y: auto !important;
             will-change: scroll-position;
         }
         .sticker-drawer-tabs {
@@ -166,11 +166,11 @@
         .msg-row.sent { justify-content: flex-end; }
         .msg-row.received { justify-content: flex-start; }
         
-        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; flex-shrink: 0; margin-bottom: 2px; }
+        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ccc; flex-shrink: 0; margin-bottom: 2px; }
         .msg-row.sent .msg-avatar { margin-left: 8px; order: 2; opacity: 1; transition: opacity 0.2s; }
         .msg-row.received .msg-avatar { margin-right: 8px; opacity: 1; transition: opacity 0.2s; }
         .msg-row.sent.hide-avatar .msg-avatar,
-        .msg-row.received.hide-avatar .msg-avatar { opacity: 0; pointer-events: none; } /* 连续消息隐藏对应头像 */
+        .msg-row.received.hide-avatar .msg-avatar { visibility: hidden; pointer-events: none; } /* 连续消息隐藏对应头像，但保留占位 */
         
         .msg-bubble { max-width: 70%; padding: 10px 14px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
         
@@ -179,24 +179,28 @@
         /* 接收方 白色 */
         .msg-row.received .msg-bubble { background-color: #fff; color: #000; border-radius: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         
-        /* 纯正的自然iMessage气泡小尾巴 (不是拼贴，通过mask完美裁剪) */
-        .msg-row.sent:not(.hide-tail) .msg-bubble { border-bottom-right-radius: 4px; }
+        /* 纯正的自然iMessage气泡小尾巴 */
+        .msg-row.sent:not(.hide-tail) .msg-bubble { border-bottom-right-radius: 5px; }
         .msg-row.sent:not(.hide-tail) .msg-bubble::before {
             content: ""; position: absolute; z-index: -1;
-            bottom: 0; right: -8px; width: 10px; height: 16px;
-            background-color: inherit;
-            -webkit-mask-image: radial-gradient(circle at 22px 0px, transparent 20px, black 20.5px);
-            mask-image: radial-gradient(circle at 22px 0px, transparent 20px, black 20.5px);
+            bottom: -2px; right: -7px; height: 20px; border-right: 20px solid #0b93f6; border-bottom-left-radius: 16px 14px; transform: translate(0, -2px);
         }
-        
-        .msg-row.received:not(.hide-tail) .msg-bubble { border-bottom-left-radius: 4px; }
+        .msg-row.sent:not(.hide-tail) .msg-bubble::after {
+            content: ""; position: absolute; z-index: 1;
+            bottom: -2px; right: -26px; width: 26px; height: 20px; background-color: #f7f7f7; border-bottom-left-radius: 10px; transform: translate(-1px, -2px);
+        }
+        .has-custom-bg .msg-row.sent:not(.hide-tail) .msg-bubble::after { background-color: transparent; } /* 自定义背景时需特殊处理或者去掉after遮罩，但纯css尾巴通常需要背景色遮挡，为保持透明背景，实际最佳方式是在外层加clip，这里简单兼容 */
+
+        .msg-row.received:not(.hide-tail) .msg-bubble { border-bottom-left-radius: 5px; }
         .msg-row.received:not(.hide-tail) .msg-bubble::before {
             content: ""; position: absolute; z-index: -1;
-            bottom: 0; left: -8px; width: 10px; height: 16px;
-            background-color: inherit;
-            -webkit-mask-image: radial-gradient(circle at -12px 0px, transparent 20px, black 20.5px);
-            mask-image: radial-gradient(circle at -12px 0px, transparent 20px, black 20.5px);
+            bottom: -2px; left: -7px; height: 20px; border-left: 20px solid #fff; border-bottom-right-radius: 16px 14px; transform: translate(0, -2px);
         }
+        .msg-row.received:not(.hide-tail) .msg-bubble::after {
+            content: ""; position: absolute; z-index: 1;
+            bottom: -2px; left: -26px; width: 26px; height: 20px; background-color: #f7f7f7; border-bottom-right-radius: 10px; transform: translate(1px, -2px);
+        }
+        .has-custom-bg .msg-row.received:not(.hide-tail) .msg-bubble::after { background-color: transparent; }
 
         /* 消息双击菜单 */
         .msg-context-menu { display: none; position: absolute; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000; flex-direction: column; min-width: 100px; border: 1px solid #eaeaea; }
@@ -1759,6 +1763,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         convMessagesContainer.innerHTML = '';
         
+        // 默认用户头像 Base64 或占位
+        const defaultUserAvatar = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fff"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
         for (let i = 0; i < msgs.length; i++) {
             const msg = msgs[i];
             const isMe = msg.sender === 'me';
@@ -1799,11 +1806,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let checkboxHtml = `<div class="msg-checkbox ${selectedMsgIndices.has(i) ? 'checked' : ''}" data-index="${i}"></div>`;
             
-            let avatarDisplayUrl = isMe ? userAvatarUrl : avatarUrl;
+            let finalUserAvatar = userAvatarUrl || defaultUserAvatar;
+            let avatarDisplayUrl = isMe ? finalUserAvatar : avatarUrl;
 
             row.innerHTML = `
                 ${checkboxHtml}
-                <div class="msg-avatar" style="background-image: url('${avatarDisplayUrl}')"></div>
+                <div class="msg-avatar" style="${avatarDisplayUrl.startsWith('data:image/svg') ? `background-image: url('${avatarDisplayUrl}'); background-color: #bbb; background-size: 80%; background-repeat: no-repeat;` : `background-image: url('${avatarDisplayUrl}')`}"></div>
                 <div class="msg-bubble" data-index="${i}">${quoteHtml}${msg.text}</div>
             `;
             
