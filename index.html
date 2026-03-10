@@ -1013,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalIcon = chatAiBtn.innerHTML;
         chatAiBtn.innerHTML = `<i class='bx bx-loader-alt spin'></i>`;
         chatAiBtn.disabled = true;
+        document.getElementById('conv-header-status').style.display = 'block';
 
         let systemPrompt = `你扮演角色：${contact.name}。
 基本设定：性别 ${contact.gender || '未知'}，年龄 ${contact.age || '未知'}。
@@ -1116,6 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             chatAiBtn.innerHTML = originalIcon;
             chatAiBtn.disabled = false;
+            document.getElementById('conv-header-status').style.display = 'none';
         }
     });
 
