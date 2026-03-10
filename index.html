@@ -141,11 +141,12 @@
         .wb-input-title:focus { border-bottom-color: #888; }
         .wb-input-content { width: 100%; flex-grow: 1; border: none; background: transparent; resize: none; font-size: 15px; line-height: 1.6; color: #444; outline: none; padding-top: 10px; }
 
-        /* 聊天对话页面 (仿iMessage韩系高级灰白) */
-        #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f5f5f5; z-index: 200; flex-direction: column; }
+        /* 聊天对话页面 (仿iMessage韩系高级灰白波点底) */
+        #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 200; flex-direction: column; overflow: hidden; }
         .conv-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; padding-top: max(15px, env(safe-area-inset-top, 40px)); background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; z-index: 10; position: sticky; top: 0; }
         .conv-back-btn { font-size: 28px; color: #555; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
-        .conv-user-info { display: flex; flex-direction: column; align-items: center; flex-grow: 1; transform: translateX(-14px); /* offset back btn */ }
+        .conv-profile-btn { font-size: 24px; color: #555; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
+        .conv-user-info { display: flex; flex-direction: column; align-items: center; flex-grow: 1; }
         .conv-avatar { width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; margin-bottom: 4px; }
         .conv-name { font-size: 13px; font-weight: 600; color: #333; }
         
@@ -175,12 +176,78 @@
         .msg-row.received:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; left: -6px; width: 12px; height: 12px; background-color: #fff; border-bottom-right-radius: 10px; z-index: -1; box-shadow: 0 1px 2px rgba(0,0,0,0.05); clip-path: inset(0px -10px -10px 0px); }
         .msg-row.received:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: 0; left: -12px; width: 12px; height: 16px; background-color: #f5f5f5; border-bottom-right-radius: 10px; z-index: -1; }
 
-        /* 底部输入框 */
-        .conv-input-area { display: flex; align-items: flex-end; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(0,0,0,0.05); z-index: 10; gap: 10px; }
-        .conv-icon-btn { font-size: 26px; color: #888; background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* 消息双击菜单 */
+        .msg-context-menu { display: none; position: absolute; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000; flex-direction: column; min-width: 100px; border: 1px solid #eaeaea; }
+        .msg-context-menu-item { padding: 10px 15px; font-size: 14px; color: #333; cursor: pointer; text-align: center; border-bottom: 1px solid #f0f0f0; }
+        .msg-context-menu-item:last-child { border-bottom: none; }
+        .msg-context-menu-item:active { background: #f9f9f9; }
+        .msg-context-menu-item.danger { color: #ff3b30; }
+        /* 引用预览区 */
+        .quote-preview-area { display: none; background: #f0f0f0; padding: 8px 12px; border-left: 3px solid #ccc; font-size: 12px; color: #666; margin: 10px 12px 0 12px; border-radius: 4px; position: relative; max-height: 50px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .quote-preview-close { position: absolute; right: 5px; top: 5px; cursor: pointer; font-size: 16px; color: #999; }
+        /* 消息内的引用 */
+        .msg-quote { background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 4px; border-left: 3px solid #ccc; font-size: 12px; color: #666; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        /* 撤回消息 */
+        .msg-recalled { text-align: center; font-size: 12px; color: #999; margin: 10px 0; width: 100%; }
+
+        /* 底部输入框与抽屉 */
+        .conv-bottom-container { display: flex; flex-direction: column; background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(0,0,0,0.05); z-index: 10; }
+        .conv-input-area { display: flex; align-items: flex-end; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); gap: 10px; }
+        .conv-icon-btn { font-size: 26px; color: #888; background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
+        .conv-icon-btn.active { color: #333; }
         .conv-input-box { flex-grow: 1; background: #fff; border: 1px solid #e5e5ea; border-radius: 20px; padding: 8px 12px; min-height: 36px; max-height: 100px; display: flex; align-items: center; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
         .conv-input-box input { width: 100%; border: none; background: transparent; outline: none; font-size: 15px; color: #333; }
         .conv-input-box input::placeholder { color: #b2b2b2; }
+        
+        /* 底部抽屉区域 */
+        .conv-drawer { display: none; height: 250px; padding: 20px; overflow-y: auto; padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)); border-top: 1px solid #eaeaea; }
+        .conv-drawer.active { display: flex; }
+        
+        /* 加号功能面板 */
+        .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; align-content: flex-start; }
+        .feature-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .feature-icon { width: 60px; height: 60px; background: #fff; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 28px; color: #555; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.1s; }
+        .feature-item:active .feature-icon { transform: scale(0.95); }
+        .feature-text { font-size: 12px; color: #666; }
+        
+        /* 表情包选择面板 */
+        .sticker-drawer { flex-direction: column; padding: 0; }
+        .sticker-drawer-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid #eaeaea; scrollbar-width: none; }
+        .sticker-drawer-tabs::-webkit-scrollbar { display: none; }
+        .sticker-tab { padding: 10px 15px; font-size: 14px; color: #888; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
+        .sticker-tab.active { color: #333; border-bottom-color: #333; font-weight: 600; }
+        .sticker-grid { padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; overflow-y: auto; flex-grow: 1; }
+        .sticker-img { width: 100%; aspect-ratio: 1; background-size: contain; background-position: center; background-repeat: no-repeat; cursor: pointer; border-radius: 8px; }
+        
+        /* 角色详情页全屏 */
+        #role-profile-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 250; flex-direction: column; overflow-y: auto; }
+        .rp-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        .rp-content { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .rp-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; display: flex; flex-direction: column; gap: 15px; }
+        .rp-top-info { display: flex; align-items: center; gap: 15px; }
+        .rp-avatar { width: 60px; height: 60px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; }
+        .rp-name { font-size: 18px; font-weight: 600; color: #333; }
+        .rp-desc { font-size: 13px; color: #888; }
+        
+        .rp-section-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: -5px; }
+        .rp-select-group { display: flex; flex-direction: column; gap: 8px; }
+        .rp-select-group select { width: 100%; padding: 12px; border: 1px solid #eaeaea; border-radius: 8px; background: #f9f9f9; outline: none; font-size: 14px; color: #333; }
+        .rp-textarea { width: 100%; padding: 12px; border: 1px solid #eaeaea; border-radius: 8px; background: #f9f9f9; outline: none; font-size: 14px; color: #333; resize: none; }
+        .rp-toggle-row { display: flex; justify-content: space-between; align-items: center; }
+        .rp-toggle-label { font-size: 14px; color: #333; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #07c160; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* 表情包管理全屏页面 */
+        #sticker-mgr-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f7f7f7; z-index: 250; flex-direction: column; }
+        
+        /* 心声气泡 */
+        #inner-voice-bubble { display: none; position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; z-index: 100; max-width: 80%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
+        #inner-voice-bubble::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); border-width: 0 6px 6px 6px; border-style: solid; border-color: transparent transparent rgba(0,0,0,0.7) transparent; }
         .chat-view-panel.active { display: flex; }
         .chat-bottom-nav { display: flex; justify-content: space-around; align-items: center; padding: 10px 5px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); background-color: #f7f7f7; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
         .chat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; cursor: pointer; flex: 1; }
@@ -505,18 +572,133 @@
                 <div class="conv-avatar" id="conv-header-avatar"></div>
                 <div class="conv-name" id="conv-header-name">名字</div>
             </div>
-            <div style="width: 28px;"></div> <!-- Placeholder for layout -->
+            <button class="conv-profile-btn" id="conv-profile-btn"><i class='bx bx-menu-alt-right'></i></button>
         </header>
+        <div id="inner-voice-bubble">这是角色的心声...</div>
         <div class="conv-messages-area" id="conv-messages-container">
             <!-- Messages will be injected here -->
         </div>
-        <div class="conv-input-area">
-            <button class="conv-icon-btn"><i class='bx bx-plus'></i></button>
-            <div class="conv-input-box">
-                <input type="text" id="conv-msg-input" placeholder="Aa">
+        
+        <div id="msg-context-menu" class="msg-context-menu">
+            <div class="msg-context-menu-item" id="menu-item-quote">引用</div>
+            <div class="msg-context-menu-item" id="menu-item-recall">撤回</div>
+            <div class="msg-context-menu-item danger" id="menu-item-delete">删除</div>
+        </div>
+        <div class="conv-bottom-container">
+            <div class="quote-preview-area" id="quote-preview-area">
+                <span id="quote-preview-text"></span>
+                <i class='bx bx-x quote-preview-close' id="quote-preview-close"></i>
             </div>
-            <button class="conv-icon-btn"><i class='bx bx-smile'></i></button>
-            <button class="conv-icon-btn"><i class='bx bx-bot'></i></button>
+            <div class="conv-input-area">
+                <button class="conv-icon-btn" id="chat-plus-btn"><i class='bx bx-plus'></i></button>
+                <div class="conv-input-box">
+                    <input type="text" id="conv-msg-input" placeholder="Aa">
+                </div>
+                <button class="conv-icon-btn" id="chat-smile-btn"><i class='bx bx-smile'></i></button>
+                <button class="conv-icon-btn" id="chat-ai-btn"><i class='bx bx-bot'></i></button>
+            </div>
+            
+            <!-- 加号功能抽屉 -->
+            <div class="conv-drawer" id="chat-drawer-plus">
+                <div class="feature-grid">
+                    <div class="feature-item" id="drawer-btn-stickers">
+                        <div class="feature-icon"><i class='bx bx-happy-heart-eyes'></i></div>
+                        <span class="feature-text">表情包</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class='bx bx-transfer'></i></div>
+                        <span class="feature-text">转账</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 表情包抽屉 -->
+            <div class="conv-drawer sticker-drawer" id="chat-drawer-smile">
+                <div class="sticker-drawer-tabs" id="sticker-drawer-tabs">
+                    <!-- Tabs injected here -->
+                </div>
+                <div class="sticker-grid" id="sticker-drawer-grid">
+                    <!-- Stickers injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色详情页全屏页面 -->
+    <div id="role-profile-page">
+        <header class="rp-header">
+            <button class="back-btn" id="close-rp-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2 style="font-size: 16px; font-weight: 600; color: #333;">角色详情</h2>
+            <button class="save-btn" id="save-rp-btn" style="background:transparent; color:#333; font-weight:600; font-size:16px;">保存</button>
+        </header>
+        <div class="rp-content">
+            <div class="rp-card">
+                <div class="rp-top-info">
+                    <div class="rp-avatar" id="rp-avatar-preview"></div>
+                    <div>
+                        <div class="rp-name" id="rp-name-display">名字</div>
+                        <div class="rp-desc" id="rp-desc-display">性别 | 年龄</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rp-card">
+                <span class="rp-section-title">绑定设置</span>
+                <div class="rp-select-group">
+                    <label style="font-size:12px; color:#888;">绑定世界书</label>
+                    <select id="rp-worldbook-select">
+                        <option value="">不绑定</option>
+                    </select>
+                </div>
+                <div class="rp-select-group">
+                    <label style="font-size:12px; color:#888;">绑定表情包分组</label>
+                    <select id="rp-sticker-group-select">
+                        <option value="">不绑定</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="rp-card">
+                <span class="rp-section-title">总结记忆库</span>
+                <div class="rp-toggle-row">
+                    <span class="rp-toggle-label">自动总结记忆</span>
+                    <label class="switch">
+                        <input type="checkbox" id="rp-auto-memory">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <textarea class="rp-textarea" id="rp-memory-content" rows="4" placeholder="记忆会存储在这里，也可以手动输入..."></textarea>
+            </div>
+            
+            <div class="rp-card">
+                <span class="rp-section-title">User人设</span>
+                <textarea class="rp-textarea" id="rp-user-persona" rows="4" placeholder="输入用户人设给AI读取..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- 表情包管理全屏页面 -->
+    <div id="sticker-mgr-page">
+        <header class="wb-header">
+            <button class="back-btn" id="close-sticker-mgr-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2 style="font-size: 16px;">表情包管理</h2>
+            <div class="wb-header-actions">
+                <button class="wb-action-btn" id="create-sticker-group-btn" title="创建分组"><i class='bx bx-folder-plus'></i></button>
+                <button class="wb-action-btn" id="import-sticker-txt-btn" title="导入TXT"><i class='bx bx-import'></i></button>
+            </div>
+        </header>
+        <div class="sticker-drawer-tabs" id="sticker-mgr-tabs" style="background: #fff; padding: 5px 10px;">
+            <!-- Tabs injected here -->
+        </div>
+        <div class="wb-content-area" style="background: #f7f7f7; display: flex; flex-direction: column;">
+            <button class="save-btn" id="add-stickers-btn" style="margin-bottom: 15px; width: 100%; display: none; background: #fff; color: #333; border: 1px dashed #ccc;"><i class='bx bx-plus'></i> 批量粘贴 (名称:URL)</button>
+            <div class="sticker-grid" id="sticker-mgr-grid" style="padding: 0;">
+                <!-- Stickers injected here -->
+                <div class="empty-state" id="sticker-mgr-empty" style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; color: #aaa; margin-top: 50px;">
+                    <i class='bx bx-image' style="font-size: 48px; margin-bottom: 10px;"></i>
+                    <p>暂无表情包</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -606,8 +788,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let contacts = JSON.parse(localStorage.getItem('chat_contacts') || '[]');
     let chatList = JSON.parse(localStorage.getItem('chat_list') || '[]');
     let messagesData = JSON.parse(localStorage.getItem('chat_messages') || '{}'); // { contactId: [ {sender:'me'|'them', text:'', time:123} ] }
+    let stickerGroups = JSON.parse(localStorage.getItem('chat_sticker_groups') || '[]'); // [ {id, name, stickers: [{name, url}]} ]
+    let roleProfiles = JSON.parse(localStorage.getItem('chat_role_profiles') || '{}'); // { contactId: { wbId, stickerGroupId, autoMem, memory, userPersona } }
+    
     let currentContactAvatarBase64 = '';
     let currentActiveContactId = null;
+    let currentStickerGroupId = null; // 用于表情包管理页面
 
     const chatConversationPage = document.getElementById('chat-conversation-page');
     const convBackBtn = document.getElementById('conv-back-btn');
@@ -615,6 +801,266 @@ document.addEventListener('DOMContentLoaded', () => {
     const convHeaderName = document.getElementById('conv-header-name');
     const convHeaderAvatar = document.getElementById('conv-header-avatar');
     const convMsgInput = document.getElementById('conv-msg-input');
+    const convProfileBtn = document.getElementById('conv-profile-btn');
+    const innerVoiceBubble = document.getElementById('inner-voice-bubble');
+    const chatPlusBtn = document.getElementById('chat-plus-btn');
+    const chatSmileBtn = document.getElementById('chat-smile-btn');
+    const chatAiBtn = document.getElementById('chat-ai-btn');
+    const chatDrawerPlus = document.getElementById('chat-drawer-plus');
+    const chatDrawerSmile = document.getElementById('chat-drawer-smile');
+    
+    const roleProfilePage = document.getElementById('role-profile-page');
+    const closeRpBtn = document.getElementById('close-rp-btn');
+    const saveRpBtn = document.getElementById('save-rp-btn');
+    const rpAvatarPreview = document.getElementById('rp-avatar-preview');
+    const rpNameDisplay = document.getElementById('rp-name-display');
+    const rpDescDisplay = document.getElementById('rp-desc-display');
+    const rpWorldbookSelect = document.getElementById('rp-worldbook-select');
+    const rpStickerGroupSelect = document.getElementById('rp-sticker-group-select');
+    const rpAutoMemory = document.getElementById('rp-auto-memory');
+    const rpMemoryContent = document.getElementById('rp-memory-content');
+    const rpUserPersona = document.getElementById('rp-user-persona');
+    
+    const stickerMgrPage = document.getElementById('sticker-mgr-page');
+    const closeStickerMgrBtn = document.getElementById('close-sticker-mgr-btn');
+    const createStickerGroupBtn = document.getElementById('create-sticker-group-btn');
+    const importStickerTxtBtn = document.getElementById('import-sticker-txt-btn');
+    const stickerMgrTabs = document.getElementById('sticker-mgr-tabs');
+    const stickerMgrGrid = document.getElementById('sticker-mgr-grid');
+    const stickerMgrEmpty = document.getElementById('sticker-mgr-empty');
+    const addStickersBtn = document.getElementById('add-stickers-btn');
+    const drawerBtnStickers = document.getElementById('drawer-btn-stickers');
+    const stickerDrawerTabs = document.getElementById('sticker-drawer-tabs');
+    const stickerDrawerGrid = document.getElementById('sticker-drawer-grid');
+
+    // UI交互逻辑 (底部抽屉)
+    const hideAllDrawers = () => {
+        chatDrawerPlus.classList.remove('active');
+        chatDrawerSmile.classList.remove('active');
+        chatPlusBtn.classList.remove('active');
+        chatSmileBtn.classList.remove('active');
+    };
+    
+    chatPlusBtn.addEventListener('click', () => {
+        if(chatDrawerPlus.classList.contains('active')) {
+            hideAllDrawers();
+        } else {
+            hideAllDrawers();
+            chatDrawerPlus.classList.add('active');
+            chatPlusBtn.classList.add('active');
+            convMessagesContainer.scrollTop = convMessagesContainer.scrollHeight;
+        }
+    });
+
+    chatSmileBtn.addEventListener('click', () => {
+        if(chatDrawerSmile.classList.contains('active')) {
+            hideAllDrawers();
+        } else {
+            hideAllDrawers();
+            chatDrawerSmile.classList.add('active');
+            chatSmileBtn.classList.add('active');
+            renderChatStickerDrawer();
+            convMessagesContainer.scrollTop = convMessagesContainer.scrollHeight;
+        }
+    });
+
+    convMsgInput.addEventListener('focus', hideAllDrawers);
+
+    // 头像点击心声
+    convHeaderAvatar.addEventListener('click', () => {
+        innerVoiceBubble.style.display = 'block';
+        setTimeout(() => { innerVoiceBubble.style.display = 'none'; }, 2500);
+    });
+
+    // 角色详情页逻辑
+    convProfileBtn.addEventListener('click', () => {
+        if(!currentActiveContactId) return;
+        const contact = contacts.find(c => c.id === currentActiveContactId);
+        if(!contact) return;
+        
+        rpAvatarPreview.style.backgroundImage = `url('${contact.avatar || ''}')`;
+        rpNameDisplay.innerText = contact.name;
+        rpDescDisplay.innerText = `${contact.gender || '未知'} | ${contact.age || '未知'}`;
+        
+        // 渲染表情包分组选项
+        rpStickerGroupSelect.innerHTML = '<option value="">不绑定</option>';
+        stickerGroups.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.innerText = g.name;
+            rpStickerGroupSelect.appendChild(opt);
+        });
+        
+        const profile = roleProfiles[currentActiveContactId] || {};
+        rpStickerGroupSelect.value = profile.stickerGroupId || '';
+        rpAutoMemory.checked = profile.autoMem || false;
+        rpMemoryContent.value = profile.memory || '';
+        rpUserPersona.value = profile.userPersona || '';
+        
+        roleProfilePage.style.display = 'flex';
+    });
+    
+    closeRpBtn.addEventListener('click', () => { roleProfilePage.style.display = 'none'; });
+    
+    saveRpBtn.addEventListener('click', () => {
+        if(!currentActiveContactId) return;
+        roleProfiles[currentActiveContactId] = {
+            wbId: rpWorldbookSelect.value,
+            stickerGroupId: rpStickerGroupSelect.value,
+            autoMem: rpAutoMemory.checked,
+            memory: rpMemoryContent.value.trim(),
+            userPersona: rpUserPersona.value.trim()
+        };
+        localStorage.setItem('chat_role_profiles', JSON.stringify(roleProfiles));
+        roleProfilePage.style.display = 'none';
+    });
+
+    // 表情包管理页面逻辑
+    drawerBtnStickers.addEventListener('click', () => {
+        hideAllDrawers();
+        renderStickerMgrTabs();
+        stickerMgrPage.style.display = 'flex';
+    });
+
+    closeStickerMgrBtn.addEventListener('click', () => {
+        stickerMgrPage.style.display = 'none';
+    });
+
+    createStickerGroupBtn.addEventListener('click', () => {
+        const name = prompt('请输入表情包分组名称:');
+        if(name && name.trim()) {
+            const newGroup = { id: 'sg_' + Date.now(), name: name.trim(), stickers: [] };
+            stickerGroups.push(newGroup);
+            localStorage.setItem('chat_sticker_groups', JSON.stringify(stickerGroups));
+            currentStickerGroupId = newGroup.id;
+            renderStickerMgrTabs();
+        }
+    });
+
+    importStickerTxtBtn.addEventListener('click', () => {
+        alert('请点击分组内的“批量粘贴”按钮导入文本。');
+    });
+
+    function renderStickerMgrTabs() {
+        stickerMgrTabs.innerHTML = '';
+        if(stickerGroups.length === 0) {
+            stickerMgrGrid.innerHTML = '';
+            stickerMgrEmpty.style.display = 'flex';
+            addStickersBtn.style.display = 'none';
+            return;
+        }
+        
+        if(!currentStickerGroupId && stickerGroups.length > 0) {
+            currentStickerGroupId = stickerGroups[0].id;
+        }
+
+        stickerGroups.forEach(group => {
+            const tab = document.createElement('div');
+            tab.className = `sticker-tab ${group.id === currentStickerGroupId ? 'active' : ''}`;
+            tab.innerText = group.name;
+            tab.addEventListener('click', () => {
+                currentStickerGroupId = group.id;
+                renderStickerMgrTabs();
+            });
+            stickerMgrTabs.appendChild(tab);
+        });
+        
+        renderStickerMgrGrid();
+    }
+
+    function renderStickerMgrGrid() {
+        stickerMgrGrid.innerHTML = '';
+        const group = stickerGroups.find(g => g.id === currentStickerGroupId);
+        
+        if(!group) return;
+        
+        addStickersBtn.style.display = 'block';
+        
+        if(group.stickers.length === 0) {
+            stickerMgrEmpty.style.display = 'flex';
+        } else {
+            stickerMgrEmpty.style.display = 'none';
+            group.stickers.forEach(s => {
+                const img = document.createElement('div');
+                img.className = 'sticker-img';
+                img.style.backgroundImage = `url('${s.url}')`;
+                img.title = s.name;
+                stickerMgrGrid.appendChild(img);
+            });
+        }
+    }
+
+    addStickersBtn.addEventListener('click', () => {
+        const text = prompt('请粘贴表情包文本 (格式: 名称:URL, 每行一个):');
+        if(!text) return;
+        
+        const group = stickerGroups.find(g => g.id === currentStickerGroupId);
+        if(!group) return;
+
+        const lines = text.split('\n');
+        let added = 0;
+        lines.forEach(line => {
+            const parts = line.split(':http'); // handle colon separator carefully
+            if(parts.length >= 2) {
+                const name = parts[0].trim();
+                const url = 'http' + parts.slice(1).join(':http').trim();
+                group.stickers.push({ name, url });
+                added++;
+            }
+        });
+        
+        if(added > 0) {
+            localStorage.setItem('chat_sticker_groups', JSON.stringify(stickerGroups));
+            renderStickerMgrGrid();
+            alert(`成功导入 ${added} 个表情包！`);
+        } else {
+            alert('未能解析到符合格式的数据。');
+        }
+    });
+
+    // 聊天底部的表情包抽屉渲染
+    function renderChatStickerDrawer() {
+        stickerDrawerTabs.innerHTML = '';
+        stickerDrawerGrid.innerHTML = '';
+        
+        if(stickerGroups.length === 0) {
+            stickerDrawerGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; margin-top:20px;">暂无表情包，请点击左下角+号进入管理添加</div>';
+            return;
+        }
+
+        let activeGroupId = stickerGroups[0].id;
+
+        const renderGrid = (groupId) => {
+            stickerDrawerGrid.innerHTML = '';
+            const g = stickerGroups.find(x => x.id === groupId);
+            if(!g || g.stickers.length === 0) return;
+            g.stickers.forEach(s => {
+                const img = document.createElement('div');
+                img.className = 'sticker-img';
+                img.style.backgroundImage = `url('${s.url}')`;
+                img.addEventListener('click', () => {
+                    // 发送带有 alt 标签的 img 标签，方便AI识别
+                    sendMsg('me', `<img src="${s.url}" alt="[表情包:${s.name}]" style="max-width:120px; border-radius:8px;">`);
+                    hideAllDrawers();
+                });
+                stickerDrawerGrid.appendChild(img);
+            });
+        };
+
+        stickerGroups.forEach((group, index) => {
+            const tab = document.createElement('div');
+            tab.className = `sticker-tab ${index === 0 ? 'active' : ''}`;
+            tab.innerText = group.name;
+            tab.addEventListener('click', () => {
+                Array.from(stickerDrawerTabs.children).forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderGrid(group.id);
+            });
+            stickerDrawerTabs.appendChild(tab);
+        });
+
+        renderGrid(activeGroupId);
+    }
 
     // 设置与世界书相关元素
     const settingsBtn = document.getElementById('nav-item-2');
@@ -922,17 +1368,24 @@ document.addEventListener('DOMContentLoaded', () => {
     convMsgInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && convMsgInput.value.trim() !== '') {
             const text = convMsgInput.value.trim();
-            messagesData[currentActiveContactId].push({
-                sender: 'me',
-                text: text,
-                time: Date.now()
-            });
-            localStorage.setItem('chat_messages', JSON.stringify(messagesData));
+            sendMsg('me', text);
             convMsgInput.value = '';
-            renderMessages();
-            convMessagesContainer.scrollTop = convMessagesContainer.scrollHeight;
         }
     });
+
+    function sendMsg(sender, text) {
+        if(!currentActiveContactId) return;
+        if(!messagesData[currentActiveContactId]) messagesData[currentActiveContactId] = [];
+        
+        messagesData[currentActiveContactId].push({
+            sender: sender,
+            text: text,
+            time: Date.now()
+        });
+        localStorage.setItem('chat_messages', JSON.stringify(messagesData));
+        renderMessages();
+        setTimeout(() => { convMessagesContainer.scrollTop = convMessagesContainer.scrollHeight; }, 50);
+    }
 
     convBackBtn.addEventListener('click', () => {
         chatConversationPage.style.display = 'none';
