@@ -770,6 +770,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 更新标题
         chatHeaderTitle.innerText = title;
+        
+        // 更新右上角按钮显示
+        addFriendBtn.style.display = targetId === 'messages' ? 'block' : 'none';
+        addContactBtn.style.display = targetId === 'contacts' ? 'block' : 'none';
+        
+        if (targetId === 'contacts') renderContacts();
+        if (targetId === 'messages') renderChatList();
     }
 
     beautifyBtn.addEventListener('click', (e) => {
