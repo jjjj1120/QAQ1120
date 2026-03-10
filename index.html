@@ -30,7 +30,16 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
-            touch-action: none;
+        }
+        
+        /* 针对所有滚动区域启用硬件加速和流畅滚动 */
+        .chat-content-area, #add-contact-page, #settings-page, #api-settings-page, .wb-content-area, .conv-messages-area, .conv-drawer, #role-profile-page, .beautify-content, .sticker-grid, .sticker-drawer-tabs, .wb-grid {
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            will-change: scroll-position;
+        }
+        .sticker-drawer-tabs {
+            touch-action: pan-x;
         }
         .phone-screen {
             width: 100vw; height: 100vh;
@@ -63,8 +72,8 @@
         .contact-item-name { font-size: 16px; color: #333; font-weight: 500; }
         
         /* 添加人设全屏页面 */
-        #add-contact-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f0f0; background-image: radial-gradient(#ccc 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; }
-        .add-contact-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e5e5e5; flex-shrink: 0; position: sticky; top: 0; z-index: 10; }
+        #add-contact-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f0f0; background-image: radial-gradient(#ccc 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; transform: translateZ(0); }
+        .add-contact-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e5e5e5; flex-shrink: 0; position: sticky; top: 0; z-index: 10; transform: translateZ(0); }
         .add-contact-header h2 { font-size: 18px; margin: 0; font-weight: 600; }
         .save-btn { background: #07c160; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-size: 14px; cursor: pointer; }
         .add-contact-form { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
@@ -89,8 +98,8 @@
         #select-contact-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 160; flex-direction: column; }
         
         /* === 设置页面与子页面样式 === */
-        #settings-page, #api-settings-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; }
-        .settings-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; position: sticky; top: 0; z-index: 10; }
+        #settings-page, #api-settings-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; transform: translateZ(0); }
+        .settings-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; position: sticky; top: 0; z-index: 10; transform: translateZ(0); }
         .settings-header h2 { font-size: 18px; margin: 0; font-weight: 600; color: #333; }
         
         .settings-list { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
@@ -142,8 +151,8 @@
         .wb-input-content { width: 100%; flex-grow: 1; border: none; background: transparent; resize: none; font-size: 15px; line-height: 1.6; color: #444; outline: none; padding-top: 10px; }
 
         /* 聊天对话页面 (仿iMessage韩系高级灰白波点底) */
-        #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 200; flex-direction: column; overflow: hidden; }
-        .conv-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; padding-top: max(15px, env(safe-area-inset-top, 40px)); background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; z-index: 10; position: sticky; top: 0; }
+        #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 200; flex-direction: column; overflow: hidden; transform: translateZ(0); }
+        .conv-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; padding-top: max(15px, env(safe-area-inset-top, 40px)); background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; z-index: 10; position: sticky; top: 0; transform: translateZ(0); }
         .conv-back-btn { font-size: 28px; color: #555; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
         .conv-profile-btn { font-size: 24px; color: #555; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
         .conv-user-info { display: flex; flex-direction: column; align-items: center; flex-grow: 1; }
@@ -234,8 +243,8 @@
         .sticker-img { width: 100%; aspect-ratio: 1; background-size: contain; background-position: center; background-repeat: no-repeat; cursor: pointer; border-radius: 8px; }
         
         /* 角色详情页全屏 */
-        #role-profile-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 250; flex-direction: column; overflow-y: auto; }
-        .rp-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        #role-profile-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 250; flex-direction: column; overflow-y: auto; transform: translateZ(0); }
+        .rp-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; transform: translateZ(0); }
         .rp-content { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         .rp-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; display: flex; flex-direction: column; gap: 15px; }
         .rp-top-info { display: flex; align-items: center; gap: 15px; }
@@ -1186,22 +1195,125 @@ document.addEventListener('DOMContentLoaded', () => {
         rpAutoMemory.checked = profile.autoMem || false;
         rpMemoryContent.value = profile.memory || '';
         rpUserPersona.value = profile.userPersona || '';
+        document.getElementById('rp-custom-css').value = profile.customCss || '';
+        if (profile.userAvatar) {
+            document.getElementById('rp-user-avatar-preview').style.backgroundImage = `url('${profile.userAvatar}')`;
+            document.getElementById('rp-user-avatar-preview').innerHTML = '';
+        } else {
+            document.getElementById('rp-user-avatar-preview').style.backgroundImage = 'none';
+            document.getElementById('rp-user-avatar-preview').innerHTML = `<i class='bx bx-camera' style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999;"></i>`;
+        }
         
         roleProfilePage.style.display = 'flex';
     });
+    
+    // 修改名字备注
+    rpNameDisplay.addEventListener('blur', () => {
+        if(!currentActiveContactId) return;
+        const newName = rpNameDisplay.innerText.trim();
+        if(newName) {
+            const contactIndex = contacts.findIndex(c => c.id === currentActiveContactId);
+            if(contactIndex !== -1) {
+                contacts[contactIndex].name = newName;
+                localStorage.setItem('chat_contacts', JSON.stringify(contacts));
+                convHeaderName.innerText = newName;
+                renderContacts();
+                renderChatList();
+            }
+        }
+    });
+    
+    // 用户头像上传
+    let tempUserAvatarBase64 = null;
+    document.getElementById('upload-user-avatar').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            tempUserAvatarBase64 = event.target.result;
+            document.getElementById('rp-user-avatar-preview').style.backgroundImage = `url('${tempUserAvatarBase64}')`;
+            document.getElementById('rp-user-avatar-preview').innerHTML = '';
+            
+            // 自动保存头像
+            if(currentActiveContactId) {
+                let profile = roleProfiles[currentActiveContactId] || {};
+                profile.userAvatar = tempUserAvatarBase64;
+                roleProfiles[currentActiveContactId] = profile;
+                localStorage.setItem('chat_role_profiles', JSON.stringify(roleProfiles));
+                renderMessages();
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    // 自定义聊天背景
+    document.getElementById('upload-chat-bg').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const bgUrl = event.target.result;
+            if(currentActiveContactId) {
+                let profile = roleProfiles[currentActiveContactId] || {};
+                profile.chatBg = bgUrl;
+                roleProfiles[currentActiveContactId] = profile;
+                localStorage.setItem('chat_role_profiles', JSON.stringify(roleProfiles));
+                applyChatBackground(bgUrl);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    document.getElementById('clear-chat-bg-btn').addEventListener('click', () => {
+        if(currentActiveContactId) {
+            let profile = roleProfiles[currentActiveContactId] || {};
+            profile.chatBg = '';
+            roleProfiles[currentActiveContactId] = profile;
+            localStorage.setItem('chat_role_profiles', JSON.stringify(roleProfiles));
+            applyChatBackground('');
+        }
+    });
+    
+    function applyChatBackground(bgUrl) {
+        if(bgUrl) {
+            chatConversationPage.style.backgroundImage = `url('${bgUrl}')`;
+            chatConversationPage.style.backgroundSize = 'cover';
+            chatConversationPage.style.backgroundPosition = 'center';
+            chatConversationPage.classList.add('has-custom-bg');
+            document.documentElement.style.setProperty('--chat-bg-color', 'transparent');
+        } else {
+            chatConversationPage.style.backgroundImage = `radial-gradient(#d5d5d5 2px, transparent 2px)`;
+            chatConversationPage.style.backgroundSize = '20px 20px';
+            chatConversationPage.classList.remove('has-custom-bg');
+        }
+    }
+    
+    function applyCustomCss(cssText) {
+        let styleTag = document.getElementById('chat-custom-css');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'chat-custom-css';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.innerHTML = cssText || '';
+    }
     
     closeRpBtn.addEventListener('click', () => { roleProfilePage.style.display = 'none'; });
     
     saveRpBtn.addEventListener('click', () => {
         if(!currentActiveContactId) return;
-        roleProfiles[currentActiveContactId] = {
-            wbId: rpWorldbookSelect.value,
-            stickerGroupId: rpStickerGroupSelect.value,
-            autoMem: rpAutoMemory.checked,
-            memory: rpMemoryContent.value.trim(),
-            userPersona: rpUserPersona.value.trim()
-        };
+        let profile = roleProfiles[currentActiveContactId] || {};
+        profile.wbId = rpWorldbookSelect.value;
+        profile.stickerGroupId = rpStickerGroupSelect.value;
+        profile.autoMem = rpAutoMemory.checked;
+        profile.memory = rpMemoryContent.value.trim();
+        profile.userPersona = rpUserPersona.value.trim();
+        profile.customCss = document.getElementById('rp-custom-css').value;
+        
+        roleProfiles[currentActiveContactId] = profile;
         localStorage.setItem('chat_role_profiles', JSON.stringify(roleProfiles));
+        
+        applyCustomCss(profile.customCss);
         roleProfilePage.style.display = 'none';
     });
 
@@ -1615,6 +1727,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        const profile = roleProfiles[contact.id] || {};
+        applyChatBackground(profile.chatBg || '');
+        applyCustomCss(profile.customCss || '');
+
         renderMessages();
         chatConversationPage.style.display = 'flex';
         // 滚动到底部
