@@ -169,12 +169,14 @@
         /* 接收方 白色 */
         .msg-row.received .msg-bubble { background-color: #fff; color: #000; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         
-        /* 仿iMessage小尾巴 */
-        .msg-row.sent:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; right: -6px; width: 12px; height: 12px; background-color: #e5e5ea; border-bottom-left-radius: 10px; z-index: -1; }
-        .msg-row.sent:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: 0; right: -12px; width: 12px; height: 16px; background-color: #f5f5f5; border-bottom-left-radius: 10px; z-index: -1; }
+        /* 仿iMessage小尾巴 (更加自然的一体化气泡) */
+        .msg-row.sent:not(.hide-tail) .msg-bubble { border-bottom-right-radius: 2px; }
+        .msg-row.sent:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; right: -8px; width: 16px; height: 16px; background-color: inherit; border-bottom-left-radius: 16px; z-index: -1; }
+        .msg-row.sent:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: -2px; right: -18px; width: 18px; height: 18px; background-color: #f7f7f7; border-bottom-left-radius: 18px; z-index: -1; }
         
-        .msg-row.received:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; left: -6px; width: 12px; height: 12px; background-color: #fff; border-bottom-right-radius: 10px; z-index: -1; box-shadow: 0 1px 2px rgba(0,0,0,0.05); clip-path: inset(0px -10px -10px 0px); }
-        .msg-row.received:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: 0; left: -12px; width: 12px; height: 16px; background-color: #f5f5f5; border-bottom-right-radius: 10px; z-index: -1; }
+        .msg-row.received:not(.hide-tail) .msg-bubble { border-bottom-left-radius: 2px; }
+        .msg-row.received:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; left: -8px; width: 16px; height: 16px; background-color: inherit; border-bottom-right-radius: 16px; z-index: -1; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .msg-row.received:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: -2px; left: -18px; width: 18px; height: 18px; background-color: #f7f7f7; border-bottom-right-radius: 18px; z-index: -1; }
 
         /* 消息双击菜单 */
         .msg-context-menu { display: none; position: absolute; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000; flex-direction: column; min-width: 100px; border: 1px solid #eaeaea; }
@@ -655,8 +657,9 @@
                 <div class="rp-top-info">
                     <div class="rp-avatar" id="rp-avatar-preview"></div>
                     <div>
-                        <div class="rp-name" id="rp-name-display">名字</div>
+                        <div class="rp-name" id="rp-name-display" contenteditable="true" style="outline:none;">名字</div>
                         <div class="rp-desc" id="rp-desc-display">性别 | 年龄</div>
+                        <div style="font-size: 12px; color: #aaa; margin-top: 4px;">(点击名字可修改备注)</div>
                     </div>
                 </div>
             </div>
@@ -691,7 +694,30 @@
             
             <div class="rp-card">
                 <span class="rp-section-title">User人设</span>
+                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                    <label for="upload-user-avatar" class="rp-avatar" id="rp-user-avatar-preview" style="cursor: pointer; position: relative; border: 1px dashed #ccc;">
+                        <i class='bx bx-camera' style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999;"></i>
+                    </label>
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <span style="font-size: 14px; color: #333; font-weight: 500;">User头像</span>
+                        <span style="font-size: 12px; color: #888;">点击上传自定义头像</span>
+                    </div>
+                </div>
                 <textarea class="rp-textarea" id="rp-user-persona" rows="4" placeholder="输入用户人设给AI读取..."></textarea>
+            </div>
+
+            <div class="rp-card">
+                <span class="rp-section-title">聊天背景设置</span>
+                <div style="display: flex; gap: 15px; margin-bottom: 10px; align-items: center;">
+                    <label for="upload-chat-bg" class="upload-btn" style="width: 100%; text-align: center;">上传自定义背景</label>
+                    <button class="save-btn" id="clear-chat-bg-btn" style="background: #ff3b30; flex-shrink: 0; padding: 8px 12px; border-radius: 8px;">清除</button>
+                </div>
+            </div>
+
+            <div class="rp-card">
+                <span class="rp-section-title">自定义CSS美化</span>
+                <span style="font-size: 12px; color: #888; margin-bottom: 5px;">输入正确的CSS可以修改聊天气泡、颜色等样式</span>
+                <textarea class="rp-textarea" id="rp-custom-css" rows="6" placeholder=".msg-bubble { border-radius: 20px !important; }"></textarea>
             </div>
         </div>
     </div>
@@ -772,6 +798,8 @@
     <input type="file" class="hidden-file-input" id="upload-wallpaper" accept="image/*">
     <input type="file" class="hidden-file-input" id="font-file-input" accept=".ttf,.otf,.woff,.woff2">
     <input type="file" class="hidden-file-input" id="upload-contact-avatar" accept="image/*">
+    <input type="file" class="hidden-file-input" id="upload-user-avatar" accept="image/*">
+    <input type="file" class="hidden-file-input" id="upload-chat-bg" accept="image/*">
 </div>
 
 <script>
