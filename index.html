@@ -88,6 +88,56 @@
         /* 选择联系人弹窗 */
         #select-contact-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 160; flex-direction: column; }
         
+        /* === 设置页面与子页面样式 === */
+        #settings-page, #api-settings-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; }
+        .settings-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; position: sticky; top: 0; z-index: 10; }
+        .settings-header h2 { font-size: 18px; margin: 0; font-weight: 600; color: #333; }
+        
+        .settings-list { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .settings-item { background: #fff; border-radius: 12px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.03); transition: transform 0.1s, box-shadow 0.1s; border: 1px solid #eaeaea; }
+        .settings-item:active { transform: scale(0.98); box-shadow: 0 1px 5px rgba(0,0,0,0.02); }
+        .settings-item span { font-size: 16px; color: #333; font-weight: 500; }
+        .settings-item i { color: #aaa; font-size: 20px; }
+        
+        /* API设置表单样式 */
+        .api-form-container { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .api-form-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; display: flex; flex-direction: column; gap: 16px; }
+        .api-input-group { display: flex; flex-direction: column; gap: 8px; }
+        .api-input-group label { font-size: 14px; font-weight: 600; color: #555; }
+        .api-input-group input { width: 100%; border: none; border-bottom: 1px solid #ccc; padding: 8px 0; font-size: 15px; color: #333; background: transparent; outline: none; border-radius: 0; transition: border-color 0.2s; }
+        .api-input-group input:focus { border-bottom-color: #555; }
+        .fetch-btn { background: #e0e0e0; color: #333; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+        .fetch-btn:hover { background: #d0d0d0; }
+        .fetch-btn:active { background: #c0c0c0; transform: scale(0.98); }
+
+        /* === 世界书页面样式 === */
+        #worldbook-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; z-index: 150; flex-direction: column; }
+        .wb-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: #fff; border-bottom: 1px solid #eaeaea; flex-shrink: 0; position: sticky; top: 0; z-index: 10; }
+        .wb-header h2 { font-size: 18px; margin: 0; font-weight: 600; color: #333; }
+        .wb-header-actions { display: flex; gap: 15px; }
+        .wb-action-btn { background: none; border: none; font-size: 24px; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .wb-content-area { flex-grow: 1; overflow-y: auto; padding: 20px; position: relative; }
+        
+        /* 文件夹风格网格 */
+        .wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; }
+        .wb-folder-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 10px; border-radius: 12px; transition: background 0.2s; }
+        .wb-folder-item:hover { background: rgba(0,0,0,0.03); }
+        .wb-folder-icon { font-size: 56px; color: #d4d4d4; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .wb-item-title { font-size: 13px; color: #444; font-weight: 500; text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
+        
+        /* 世界书底部导航 */
+        .wb-bottom-nav { display: flex; justify-content: space-around; align-items: center; padding: 12px 20px; padding-bottom: max(12px, env(safe-area-inset-bottom, 20px)); background: #fff; border-top: 1px solid #eaeaea; flex-shrink: 0; }
+        .wb-nav-btn { flex: 1; text-align: center; padding: 8px; font-size: 15px; font-weight: 600; color: #888; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .wb-nav-btn.active { color: #333; background: #f0f0f0; }
+
+        /* 添加世界书弹窗 */
+        #wb-add-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f7f7f7; z-index: 160; flex-direction: column; }
+        .wb-add-form { padding: 20px; display: flex; flex-direction: column; gap: 20px; flex-grow: 1; }
+        .wb-input-title { width: 100%; border: none; border-bottom: 2px solid #ddd; padding: 15px 0; font-size: 20px; font-weight: 600; color: #333; background: transparent; outline: none; }
+        .wb-input-title:focus { border-bottom-color: #888; }
+        .wb-input-content { width: 100%; flex-grow: 1; border: none; background: transparent; resize: none; font-size: 15px; line-height: 1.6; color: #444; outline: none; padding-top: 10px; }
+
         /* 聊天对话页面 (仿iMessage韩系高级灰白) */
         #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f5f5f5; z-index: 200; flex-direction: column; }
         .conv-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; padding-top: max(15px, env(safe-area-inset-top, 40px)); background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; z-index: 10; position: sticky; top: 0; }
@@ -327,6 +377,114 @@
         </div>
     </div>
 
+    <!-- 设置页面 -->
+    <div id="settings-page">
+        <header class="settings-header">
+            <button class="back-btn" id="close-settings-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2>设置</h2>
+            <div style="width: 24px;"></div>
+        </header>
+        <div class="settings-list">
+            <div class="settings-item" id="nav-api-settings">
+                <span>API设置</span>
+                <i class='bx bx-chevron-right'></i>
+            </div>
+            <div class="settings-item">
+                <span>minmax语音设置</span>
+                <i class='bx bx-chevron-right'></i>
+            </div>
+            <div class="settings-item">
+                <span>nai生图设置</span>
+                <i class='bx bx-chevron-right'></i>
+            </div>
+            <div class="settings-item">
+                <span>后台保活设置</span>
+                <i class='bx bx-chevron-right'></i>
+            </div>
+            <div class="settings-item">
+                <span>备份数据</span>
+                <i class='bx bx-cloud-upload'></i>
+            </div>
+            <div class="settings-item">
+                <span>导入数据</span>
+                <i class='bx bx-cloud-download'></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- API设置页面 -->
+    <div id="api-settings-page">
+        <header class="settings-header">
+            <button class="back-btn" id="close-api-settings-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2>API设置</h2>
+            <button class="save-btn" id="save-api-btn" style="background:transparent; color:#333; font-weight:600; font-size:16px;">保存</button>
+        </header>
+        <div class="api-form-container">
+            <div class="api-form-card">
+                <div class="api-input-group">
+                    <label>模型名称</label>
+                    <input type="text" id="api-model-name" placeholder="例如: gpt-4o, gemini-pro">
+                </div>
+                <div class="api-input-group">
+                    <label>URL地址</label>
+                    <input type="text" id="api-url" placeholder="例如: https://api.openai.com/v1">
+                </div>
+                <div class="api-input-group">
+                    <label>API秘钥</label>
+                    <input type="password" id="api-key" placeholder="sk-...">
+                </div>
+                <button class="fetch-btn" id="fetch-models-btn">拉取模型</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 世界书页面 -->
+    <div id="worldbook-page">
+        <header class="wb-header">
+            <button class="back-btn" id="close-wb-btn"><i class='bx bx-chevron-left'></i></button>
+            <h2 id="wb-header-title">全局</h2>
+            <div class="wb-header-actions">
+                <button class="wb-action-btn" id="wb-create-folder-btn"><i class='bx bx-folder-plus'></i></button>
+                <button class="wb-action-btn" id="wb-add-content-btn"><i class='bx bx-plus'></i></button>
+            </div>
+        </header>
+        
+        <div class="wb-content-area" id="wb-content-container">
+            <div class="wb-grid" id="wb-global-grid">
+                <!-- 全局内容 -->
+                <div class="empty-state" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; color: #aaa; margin-top: 50px;">
+                    <i class='bx bx-book-open' style="font-size: 48px; margin-bottom: 10px;"></i>
+                    <p>暂无全局世界书内容</p>
+                </div>
+            </div>
+            <div class="wb-grid" id="wb-local-grid" style="display: none;">
+                <!-- 局部内容 -->
+                <div class="empty-state" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; color: #aaa; margin-top: 50px;">
+                    <i class='bx bx-book-bookmark' style="font-size: 48px; margin-bottom: 10px;"></i>
+                    <p>暂无局部世界书内容</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="wb-bottom-nav">
+            <div class="wb-nav-btn active" data-target="global">全局</div>
+            <div class="wb-nav-btn" data-target="local">局部</div>
+        </div>
+    </div>
+
+    <!-- 添加世界书内容弹窗 -->
+    <div id="wb-add-modal">
+        <header class="wb-header">
+            <button class="back-btn" id="close-wb-add-btn"><i class='bx bx-x'></i></button>
+            <h2>添加内容</h2>
+            <button class="save-btn" id="save-wb-btn" style="background:transparent; color:#333; font-weight:600; font-size:16px;">保存</button>
+        </header>
+        <div class="wb-add-form">
+            <input type="text" class="wb-input-title" id="wb-input-title" placeholder="标题">
+            <textarea class="wb-input-content" id="wb-input-content" placeholder="输入世界书内容..."></textarea>
+        </div>
+    </div>
+
     <!-- 聊天对话全屏页面 -->
     <div id="chat-conversation-page">
         <header class="conv-header">
@@ -445,6 +603,107 @@ document.addEventListener('DOMContentLoaded', () => {
     const convHeaderName = document.getElementById('conv-header-name');
     const convHeaderAvatar = document.getElementById('conv-header-avatar');
     const convMsgInput = document.getElementById('conv-msg-input');
+
+    // 设置与世界书相关元素
+    const settingsBtn = document.getElementById('nav-item-2');
+    const settingsPage = document.getElementById('settings-page');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    
+    const navApiSettings = document.getElementById('nav-api-settings');
+    const apiSettingsPage = document.getElementById('api-settings-page');
+    const closeApiSettingsBtn = document.getElementById('close-api-settings-btn');
+    const saveApiBtn = document.getElementById('save-api-btn');
+    
+    const worldBookBtn = document.getElementById('app-item-2');
+    const worldBookPage = document.getElementById('worldbook-page');
+    const closeWbBtn = document.getElementById('close-wb-btn');
+    const wbNavBtns = document.querySelectorAll('.wb-nav-btn');
+    const wbGlobalGrid = document.getElementById('wb-global-grid');
+    const wbLocalGrid = document.getElementById('wb-local-grid');
+    const wbHeaderTitle = document.getElementById('wb-header-title');
+    
+    const wbAddModal = document.getElementById('wb-add-modal');
+    const wbAddContentBtn = document.getElementById('wb-add-content-btn');
+    const closeWbAddBtn = document.getElementById('close-wb-add-btn');
+    
+    // 初始化API设置数据
+    const loadApiSettings = () => {
+        const apiData = JSON.parse(localStorage.getItem('api_settings') || '{}');
+        document.getElementById('api-model-name').value = apiData.modelName || '';
+        document.getElementById('api-url').value = apiData.url || '';
+        document.getElementById('api-key').value = apiData.key || '';
+    };
+
+    // 设置页面路由逻辑
+    settingsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        homePage.style.display = 'none';
+        settingsPage.style.display = 'flex';
+    });
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsPage.style.display = 'none';
+        homePage.style.display = 'flex';
+    });
+
+    // API设置页面逻辑
+    navApiSettings.addEventListener('click', () => {
+        loadApiSettings();
+        apiSettingsPage.style.display = 'flex';
+    });
+    closeApiSettingsBtn.addEventListener('click', () => {
+        apiSettingsPage.style.display = 'none';
+    });
+    saveApiBtn.addEventListener('click', () => {
+        const apiData = {
+            modelName: document.getElementById('api-model-name').value.trim(),
+            url: document.getElementById('api-url').value.trim(),
+            key: document.getElementById('api-key').value.trim()
+        };
+        localStorage.setItem('api_settings', JSON.stringify(apiData));
+        apiSettingsPage.style.display = 'none';
+        // 不弹出原生alert，使用平滑过渡或静默保存符合韩系高级感
+    });
+
+    // 世界书页面逻辑
+    worldBookBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        homePage.style.display = 'none';
+        worldBookPage.style.display = 'flex';
+    });
+    closeWbBtn.addEventListener('click', () => {
+        worldBookPage.style.display = 'none';
+        homePage.style.display = 'flex';
+    });
+
+    wbNavBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            wbNavBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const target = btn.dataset.target;
+            if(target === 'global') {
+                wbGlobalGrid.style.display = 'grid';
+                wbLocalGrid.style.display = 'none';
+                wbHeaderTitle.innerText = '全局';
+            } else {
+                wbGlobalGrid.style.display = 'none';
+                wbLocalGrid.style.display = 'grid';
+                wbHeaderTitle.innerText = '局部';
+            }
+        });
+    });
+
+    wbAddContentBtn.addEventListener('click', () => {
+        document.getElementById('wb-input-title').value = '';
+        document.getElementById('wb-input-content').value = '';
+        wbAddModal.style.display = 'flex';
+    });
+    closeWbAddBtn.addEventListener('click', () => {
+        wbAddModal.style.display = 'none';
+    });
+    document.getElementById('save-wb-btn').addEventListener('click', () => {
+        // Here you would add logic to save the world book content
+        wbAddModal.style.display = 'none';
+    });
 
     // 渲染联系人列表
     function renderContacts() {
