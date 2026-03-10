@@ -166,26 +166,37 @@
         .msg-row.sent { justify-content: flex-end; }
         .msg-row.received { justify-content: flex-start; }
         
-        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; flex-shrink: 0; }
-        .msg-row.sent .msg-avatar { display: none; } /* 自己发的不显头像(仿iMessage) */
+        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; flex-shrink: 0; margin-bottom: 2px; }
+        .msg-row.sent .msg-avatar { margin-left: 8px; order: 2; opacity: 1; transition: opacity 0.2s; }
         .msg-row.received .msg-avatar { margin-right: 8px; opacity: 1; transition: opacity 0.2s; }
-        .msg-row.received.hide-avatar .msg-avatar { opacity: 0; pointer-events: none; } /* 连续消息隐藏头像但保留占位 */
+        .msg-row.sent.hide-avatar .msg-avatar,
+        .msg-row.received.hide-avatar .msg-avatar { opacity: 0; pointer-events: none; } /* 连续消息隐藏对应头像 */
         
         .msg-bubble { max-width: 70%; padding: 10px 14px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
         
-        /* 发送方 (自己) 灰色 */
-        .msg-row.sent .msg-bubble { background-color: #e5e5ea; color: #000; border-radius: 18px 18px 4px 18px; }
+        /* 发送方 (自己) 蓝色/灰色 */
+        .msg-row.sent .msg-bubble { background-color: #0b93f6; color: #fff; border-radius: 18px; }
         /* 接收方 白色 */
-        .msg-row.received .msg-bubble { background-color: #fff; color: #000; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .msg-row.received .msg-bubble { background-color: #fff; color: #000; border-radius: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         
-        /* 仿iMessage小尾巴 (更加自然的一体化气泡) */
-        .msg-row.sent:not(.hide-tail) .msg-bubble { border-bottom-right-radius: 2px; }
-        .msg-row.sent:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; right: -8px; width: 16px; height: 16px; background-color: inherit; border-bottom-left-radius: 16px; z-index: -1; }
-        .msg-row.sent:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: -2px; right: -18px; width: 18px; height: 18px; background-color: #f7f7f7; border-bottom-left-radius: 18px; z-index: -1; }
+        /* 纯正的自然iMessage气泡小尾巴 (不是拼贴，通过mask完美裁剪) */
+        .msg-row.sent:not(.hide-tail) .msg-bubble { border-bottom-right-radius: 4px; }
+        .msg-row.sent:not(.hide-tail) .msg-bubble::before {
+            content: ""; position: absolute; z-index: -1;
+            bottom: 0; right: -8px; width: 10px; height: 16px;
+            background-color: inherit;
+            -webkit-mask-image: radial-gradient(circle at 22px 0px, transparent 20px, black 20.5px);
+            mask-image: radial-gradient(circle at 22px 0px, transparent 20px, black 20.5px);
+        }
         
-        .msg-row.received:not(.hide-tail) .msg-bubble { border-bottom-left-radius: 2px; }
-        .msg-row.received:not(.hide-tail) .msg-bubble::after { content: ''; position: absolute; bottom: 0; left: -8px; width: 16px; height: 16px; background-color: inherit; border-bottom-right-radius: 16px; z-index: -1; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-        .msg-row.received:not(.hide-tail) .msg-bubble::before { content: ''; position: absolute; bottom: -2px; left: -18px; width: 18px; height: 18px; background-color: #f7f7f7; border-bottom-right-radius: 18px; z-index: -1; }
+        .msg-row.received:not(.hide-tail) .msg-bubble { border-bottom-left-radius: 4px; }
+        .msg-row.received:not(.hide-tail) .msg-bubble::before {
+            content: ""; position: absolute; z-index: -1;
+            bottom: 0; left: -8px; width: 10px; height: 16px;
+            background-color: inherit;
+            -webkit-mask-image: radial-gradient(circle at -12px 0px, transparent 20px, black 20.5px);
+            mask-image: radial-gradient(circle at -12px 0px, transparent 20px, black 20.5px);
+        }
 
         /* 消息双击菜单 */
         .msg-context-menu { display: none; position: absolute; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000; flex-direction: column; min-width: 100px; border: 1px solid #eaeaea; }
@@ -1742,7 +1753,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentActiveContactId) return;
         const msgs = messagesData[currentActiveContactId] || [];
         const contact = contacts.find(c => c.id === currentActiveContactId);
+        const profile = roleProfiles[currentActiveContactId] || {};
         const avatarUrl = contact ? (contact.avatar || '') : '';
+        const userAvatarUrl = profile.userAvatar || '';
         
         convMessagesContainer.innerHTML = '';
         
@@ -1785,10 +1798,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let checkboxHtml = `<div class="msg-checkbox ${selectedMsgIndices.has(i) ? 'checked' : ''}" data-index="${i}"></div>`;
+            
+            let avatarDisplayUrl = isMe ? userAvatarUrl : avatarUrl;
 
             row.innerHTML = `
                 ${checkboxHtml}
-                <div class="msg-avatar" style="background-image: url('${avatarUrl}')"></div>
+                <div class="msg-avatar" style="background-image: url('${avatarDisplayUrl}')"></div>
                 <div class="msg-bubble" data-index="${i}">${quoteHtml}${msg.text}</div>
             `;
             
@@ -2172,10 +2187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     loadSettings();
 
-    // 防止 iOS 橡皮筋效果
-    document.body.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-    }, { passive: false });
+    // 橡皮筋效果由CSS overscroll-behavior-y 控制，无需在此全局阻止滚动
 });
 </script>
 </body>
