@@ -54,22 +54,23 @@
         #home-screen-page { background-color: transparent; position: relative; z-index: 1; }
         #beautify-page, #chat-app-page { display: none; }
         
-        /* 聊天软件样式 */
-        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background-color: #f7f7f7; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; }
-        .chat-header h2 { font-size: 18px; margin: 0; font-weight: 600; color: #333; }
+        /* 聊天软件样式 (高级重塑) */
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; padding-top: max(20px, env(safe-area-inset-top, 40px)); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: none; flex-shrink: 0; z-index: 10; position: relative; }
+        .chat-header h2 { font-size: 22px; margin: 0; font-weight: 700; color: #111; letter-spacing: 0.5px; }
         .chat-header-right { width: 24px; display: flex; justify-content: flex-end; }
-        .header-action-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; display: none; }
-        .chat-content-area { flex-grow: 1; overflow-y: auto; background-color: #fff; position: relative; }
+        .header-action-btn { background: none; border: none; font-size: 26px; cursor: pointer; color: #111; display: none; transition: transform 0.2s; }
+        .header-action-btn:active { transform: scale(0.9); }
+        .chat-content-area { flex-grow: 1; overflow-y: auto; background-color: #fafafa; position: relative; }
         .chat-view-panel { display: none; height: 100%; width: 100%; color: var(--text-secondary); }
         .chat-view-panel.empty-state { flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
         /* 联系人列表样式 */
-        .contact-list, .chat-list { display: flex; flex-direction: column; width: 100%; }
-        .contact-item { display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .contact-item:active { background-color: #f9f9f9; }
-        .contact-item-avatar { width: 40px; height: 40px; border-radius: 4px; background-size: cover; background-position: center; margin-right: 15px; background-color: #eee; flex-shrink: 0; }
-        .contact-item-info { flex-grow: 1; display: flex; flex-direction: column; }
-        .contact-item-name { font-size: 16px; color: #333; font-weight: 500; }
+        .contact-list, .chat-list { display: flex; flex-direction: column; width: 100%; padding: 10px; padding-bottom: 110px; }
+        .contact-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; transition: all 0.2s; border-radius: 20px; margin-bottom: 2px; }
+        .contact-item:active, .contact-item:hover { background-color: #f2f4f6; }
+        .contact-item-avatar { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; margin-right: 15px; background-color: #eee; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .contact-item-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .contact-item-name { font-size: 17px; color: #111; font-weight: 600; letter-spacing: 0.3px; }
         
         /* 添加人设全屏页面 */
         #add-contact-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f0f0; background-image: radial-gradient(#ccc 2px, transparent 2px); background-size: 20px 20px; z-index: 150; flex-direction: column; overflow-y: auto; transform: translateZ(0); }
@@ -150,57 +151,39 @@
         .wb-input-title:focus { border-bottom-color: #888; }
         .wb-input-content { width: 100%; flex-grow: 1; border: none; background: transparent; resize: none; font-size: 15px; line-height: 1.6; color: #444; outline: none; padding-top: 10px; }
 
-        /* 聊天对话页面 (仿iMessage韩系高级灰白波点底) */
-        #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f7f7f7; background-image: radial-gradient(#d5d5d5 2px, transparent 2px); background-size: 20px 20px; z-index: 200; flex-direction: column; overflow: hidden; transform: translateZ(0); }
-        .conv-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; padding-top: max(15px, env(safe-area-inset-top, 40px)); background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; z-index: 10; position: sticky; top: 0; transform: translateZ(0); }
+        /* 聊天对话页面 (韩系极简高级灰白) */
+        #chat-conversation-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f8f9fa; z-index: 200; flex-direction: column; overflow: hidden; transform: translateZ(0); transition: background-color 0.3s ease, background-image 0.3s ease; }
+        .conv-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; padding-top: max(15px, env(safe-area-inset-top, 40px)); background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-bottom: 1px solid rgba(0,0,0,0.03); flex-shrink: 0; z-index: 10; position: sticky; top: 0; transform: translateZ(0); }
         .conv-back-btn { font-size: 28px; color: #555; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
         .conv-profile-btn { font-size: 24px; color: #555; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; }
         .conv-user-info { display: flex; flex-direction: column; align-items: center; flex-grow: 1; }
         .conv-avatar { width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ddd; margin-bottom: 4px; }
         .conv-name { font-size: 13px; font-weight: 600; color: #333; }
         
-        .conv-messages-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; gap: 4px; }
+        .conv-messages-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; gap: 6px; }
+        
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         
         /* 气泡样式 */
-        .msg-row { display: flex; align-items: flex-end; margin-bottom: 8px; position: relative; }
+        .msg-row { display: flex; align-items: flex-end; margin-bottom: 12px; position: relative; animation: slideUpFade 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         .msg-row.sent { justify-content: flex-end; }
         .msg-row.received { justify-content: flex-start; }
         
-        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; background-color: #ccc; flex-shrink: 0; margin-bottom: 2px; }
-        .msg-row.sent .msg-avatar { margin-left: 8px; order: 2; opacity: 1; transition: opacity 0.2s; }
-        .msg-row.received .msg-avatar { margin-right: 8px; opacity: 1; transition: opacity 0.2s; }
+        .msg-avatar { width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; background-color: #eee; flex-shrink: 0; margin-bottom: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .msg-row.sent .msg-avatar { margin-left: 10px; order: 2; opacity: 1; transition: opacity 0.2s; }
+        .msg-row.received .msg-avatar { margin-right: 10px; opacity: 1; transition: opacity 0.2s; }
         .msg-row.sent.hide-avatar .msg-avatar,
-        .msg-row.received.hide-avatar .msg-avatar { visibility: hidden; pointer-events: none; } /* 连续消息隐藏对应头像，但保留占位 */
+        .msg-row.received.hide-avatar .msg-avatar { visibility: hidden; pointer-events: none; }
         
-        .msg-bubble { max-width: 70%; padding: 10px 14px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .msg-bubble { max-width: 72%; padding: 12px 16px; font-size: 15px; line-height: 1.5; letter-spacing: 0.2px; position: relative; word-wrap: break-word; }
         
-        /* 发送方 (自己) 灰色 */
-        .msg-row.sent .msg-bubble { background-color: #e5e5ea; color: #000; border-radius: 18px; }
-        /* 接收方 白色 */
-        .msg-row.received .msg-bubble { background-color: #fff; color: #000; border-radius: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        /* 发送方 (自己) 极简云灰 */
+        .msg-row.sent .msg-bubble { background-color: #f1f3f5; color: #222; border-radius: 22px 22px 6px 22px; }
+        .msg-row.sent.hide-tail .msg-bubble { border-radius: 22px; }
         
-        /* 纯正的自然iMessage气泡小尾巴 */
-        .msg-row.sent:not(.hide-tail) .msg-bubble { border-bottom-right-radius: 5px; }
-        .msg-row.sent:not(.hide-tail) .msg-bubble::before {
-            content: ""; position: absolute; z-index: -1;
-            bottom: -2px; right: -7px; height: 20px; border-right: 20px solid #e5e5ea; border-bottom-left-radius: 16px 14px; transform: translate(0, -2px);
-        }
-        .msg-row.sent:not(.hide-tail) .msg-bubble::after {
-            content: ""; position: absolute; z-index: 1;
-            bottom: -2px; right: -26px; width: 26px; height: 20px; background-color: #f7f7f7; border-bottom-left-radius: 10px; transform: translate(-1px, -2px);
-        }
-        .has-custom-bg .msg-row.sent:not(.hide-tail) .msg-bubble::after { background-color: transparent; } /* 自定义背景时需特殊处理或者去掉after遮罩，但纯css尾巴通常需要背景色遮挡，为保持透明背景，实际最佳方式是在外层加clip，这里简单兼容 */
-
-        .msg-row.received:not(.hide-tail) .msg-bubble { border-bottom-left-radius: 5px; }
-        .msg-row.received:not(.hide-tail) .msg-bubble::before {
-            content: ""; position: absolute; z-index: -1;
-            bottom: -2px; left: -7px; height: 20px; border-left: 20px solid #fff; border-bottom-right-radius: 16px 14px; transform: translate(0, -2px);
-        }
-        .msg-row.received:not(.hide-tail) .msg-bubble::after {
-            content: ""; position: absolute; z-index: 1;
-            bottom: -2px; left: -26px; width: 26px; height: 20px; background-color: #f7f7f7; border-bottom-right-radius: 10px; transform: translate(1px, -2px);
-        }
-        .has-custom-bg .msg-row.received:not(.hide-tail) .msg-bubble::after { background-color: transparent; }
+        /* 接收方 纯净白 + 弥散阴影 */
+        .msg-row.received .msg-bubble { background-color: #ffffff; color: #222; border-radius: 22px 22px 22px 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
+        .msg-row.received.hide-tail .msg-bubble { border-radius: 22px; }
 
         /* 消息双击菜单 */
         .msg-context-menu { display: none; position: absolute; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000; flex-direction: column; min-width: 100px; border: 1px solid #eaeaea; }
@@ -216,6 +199,33 @@
         /* 撤回消息 */
         .msg-recalled { text-align: center; font-size: 12px; color: #999; margin: 10px 0; width: 100%; }
 
+        /* 语音气泡与转文字结果 */
+        .msg-bubble-col { display: flex; flex-direction: column; align-items: flex-start; max-width: 72%; }
+        .msg-row.sent .msg-bubble-col { align-items: flex-end; }
+        
+        .voice-bubble { display: flex; align-items: center; gap: 8px; cursor: pointer; height: 44px; padding: 0 16px; border-radius: 22px; font-weight: 600; color: #222; }
+        .msg-row.sent .voice-bubble { background-color: #f1f3f5; border-bottom-right-radius: 4px; }
+        .msg-row.received .voice-bubble { background-color: #ffffff; border-bottom-left-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
+        .voice-icon { font-size: 20px; }
+        .msg-row.received .voice-icon { transform: rotate(90deg); margin-right: 2px; }
+        .msg-row.sent .voice-icon { transform: rotate(-90deg); margin-left: 2px; order: 2; }
+        .voice-text-result { display: none; margin-top: 6px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 10px 14px; border-radius: 12px; font-size: 14px; color: #444; line-height: 1.5; box-shadow: 0 2px 10px rgba(0,0,0,0.03); max-width: 100%; word-wrap: break-word; }
+        .voice-text-result.show { display: block; animation: slideUpFade 0.2s ease forwards; }
+
+        /* 高级灰白英文转账卡片 */
+        .ptc-card { background: #fff; border: 1px solid rgba(0,0,0,0.03); border-radius: 20px; padding: 16px; width: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 14px; margin: -2px -4px; cursor: default; }
+        .msg-row.sent .ptc-card { background: #f8f9fa; }
+        .ptc-header { display: flex; align-items: center; gap: 6px; color: #888; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; }
+        .ptc-header i { font-size: 14px; color: #111; }
+        .ptc-body { display: flex; flex-direction: column; gap: 2px; }
+        .ptc-amount { font-size: 28px; font-weight: 800; color: #111; font-family: -apple-system, system-ui, sans-serif; }
+        .ptc-status { font-size: 12px; color: #999; font-weight: 500; }
+        .ptc-actions { display: flex; gap: 10px; margin-top: 2px; }
+        .ptc-btn { flex: 1; padding: 10px 0; border-radius: 12px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; outline: none; }
+        .ptc-btn:active { transform: scale(0.95); }
+        .ptc-btn.reject { background: #f0f2f5; color: #666; }
+        .ptc-btn.accept { background: #111; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
         /* 多选模式样式 */
         .msg-checkbox { display: none; width: 22px; height: 22px; border-radius: 50%; border: 1px solid #ccc; margin-right: 10px; flex-shrink: 0; align-items: center; justify-content: center; }
         .msg-checkbox.checked { background-color: #07c160; border-color: #07c160; color: white; }
@@ -228,14 +238,16 @@
         .multi-select-mode ~ .multi-select-bar { display: flex; }
         .multi-select-mode ~ .conv-bottom-container { display: none !important; }
 
-        /* 底部输入框与抽屉 */
-        .conv-bottom-container { display: flex; flex-direction: column; background: rgba(245, 245, 245, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(0,0,0,0.05); z-index: 10; }
-        .conv-input-area { display: flex; align-items: flex-end; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); gap: 10px; }
-        .conv-icon-btn { font-size: 26px; color: #888; background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
-        .conv-icon-btn.active { color: #333; }
-        .conv-input-box { flex-grow: 1; background: #fff; border: 1px solid #e5e5ea; border-radius: 20px; padding: 8px 12px; min-height: 36px; max-height: 100px; display: flex; align-items: center; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
-        .conv-input-box input { width: 100%; border: none; background: transparent; outline: none; font-size: 15px; color: #333; }
-        .conv-input-box input::placeholder { color: #b2b2b2; }
+        /* 底部输入框与抽屉 (极简悬浮感) */
+        .conv-bottom-container { display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-top: 1px solid rgba(0,0,0,0.03); z-index: 10; }
+        .conv-input-area { display: flex; align-items: flex-end; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); gap: 12px; }
+        .conv-icon-btn { font-size: 28px; color: #999; background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .conv-icon-btn:active { transform: scale(0.9); }
+        .conv-icon-btn.active, .conv-icon-btn:hover { color: #333; }
+        .conv-input-box { flex-grow: 1; background: #f1f3f5; border: none; border-radius: 24px; padding: 10px 16px; min-height: 40px; max-height: 100px; display: flex; align-items: center; transition: background 0.3s; }
+        .conv-input-box:focus-within { background: #e9ecef; }
+        .conv-input-box input { width: 100%; border: none; background: transparent; outline: none; font-size: 15px; color: #222; letter-spacing: 0.3px; }
+        .conv-input-box input::placeholder { color: #aaa; }
         
         /* 底部抽屉区域 */
         .conv-drawer { display: none; height: 250px; padding: 20px; overflow-y: auto; padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)); border-top: 1px solid #eaeaea; }
@@ -287,11 +299,25 @@
         #inner-voice-bubble { display: none; position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; z-index: 100; max-width: 80%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
         #inner-voice-bubble::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); border-width: 0 6px 6px 6px; border-style: solid; border-color: transparent transparent rgba(0,0,0,0.7) transparent; }
         .chat-view-panel.active { display: flex; }
-        .chat-bottom-nav { display: flex; justify-content: space-around; align-items: center; padding: 10px 5px; padding-bottom: max(10px, env(safe-area-inset-bottom, 20px)); background-color: #f7f7f7; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
-        .chat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; cursor: pointer; flex: 1; }
-        .chat-nav-item.active { color: #07c160; }
-        .chat-nav-item i { font-size: 24px; }
-        .chat-nav-item span { font-size: 12px; }
+        
+        /* 悬浮高级底部导航 */
+        .chat-bottom-nav { 
+            position: absolute; bottom: max(20px, env(safe-area-inset-bottom, 20px)); left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 360px;
+            display: flex; justify-content: space-around; align-items: center; 
+            padding: 12px 10px; 
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
+            border-radius: 35px; 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08), 0 2px 10px rgba(0,0,0,0.03); 
+            z-index: 50;
+        }
+        .chat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #a0a0a0; cursor: pointer; flex: 1; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .chat-nav-item:active { transform: scale(0.9); }
+        .chat-nav-item.active { color: #111; }
+        .chat-nav-item i { font-size: 26px; }
+        .chat-nav-item span { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
         .screen-content { 
             flex-grow: 1; 
             padding: 20px; 
@@ -687,6 +713,8 @@
                         <div style="font-size: 12px; color: #aaa; margin-top: 4px;">(点击名字可修改备注)</div>
                     </div>
                 </div>
+                <div class="rp-section-title" style="margin-top: 15px; margin-bottom: 5px;">人设</div>
+                <textarea class="rp-textarea" id="rp-contact-desc" rows="4" placeholder="修改角色人设..."></textarea>
             </div>
             
             <div class="rp-card">
@@ -866,6 +894,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentContactAvatarBase64 = '';
     let currentActiveContactId = null;
     let currentStickerGroupId = null; // 用于表情包管理页面
+    let editingContactId = null; // 记录正在编辑的联系人
 
     const chatConversationPage = document.getElementById('chat-conversation-page');
     const convBackBtn = document.getElementById('conv-back-btn');
@@ -1073,7 +1102,21 @@ document.addEventListener('DOMContentLoaded', () => {
 基本设定：性别 ${contact.gender || '未知'}，年龄 ${contact.age || '未知'}。
 详细人设：${contact.desc || '暂无'}
 请遵循线上聊天规则，要有活人感，采用短讯式回复，不要长篇大论。
-【重要指令】在每次回复内容的开头，你必须根据当前的人设、世界书和聊天内容，输出你当前的心情、动作或状态。必须严格使用 [状态:你的状态] 的格式，例如：[状态:开心地笑]。然后再输出对用户的回复。
+【重要指令】你必须严格使用给定的人设、世界书和用户人设来回答问题。在每次回复内容的开头，你必须根据当前的人设、世界书和聊天内容，输出你当前的心情、动作或状态。必须严格使用 [状态:你的状态] 的格式，例如：[状态:去抓某个又偷吃的小猫(=^･ω･^=)]。
+
+【输出格式要求（非常重要）】
+你必须返回一个JSON数组，数组中的每个元素代表你发送的一条独立气泡消息。你每次输出的条数不能少于4条！
+格式如下：
+[
+  "[状态:你的状态(带颜文字)]",
+  "第一条消息内容",
+  "第二条消息内容",
+  "第三条消息内容",
+  "第四条消息内容"
+]
+注意：数组的第一个元素必须是状态标签！从第二个元素开始是发送的消息。
+如果你想发语音，可以使用格式 [语音:内容:时长秒数]（如：[语音:你好呀:3]）。
+如果你想主动转账给用户，可以使用格式 [转账:金额]（如：[转账:520]）。
 `;
         if (profile.userPersona) systemPrompt += `\n【用户人设】\n${profile.userPersona}\n`;
         if (profile.memory) systemPrompt += `\n【总结记忆】\n${profile.memory}\n`;
@@ -1151,28 +1194,78 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             
             const result = await response.json();
-            let aiReply = result.choices[0].message.content;
+            let aiReplyRaw = result.choices[0].message.content;
             
-            let statusMatch = aiReply.match(/\[状态:(.*?)\]/);
-            if (statusMatch) {
-                if (statusEl) statusEl.innerText = statusMatch[1];
-                aiReply = aiReply.replace(/\[状态:(.*?)\]/, '').trim();
+            let messagesArray = [];
+            try {
+                const jsonMatch = aiReplyRaw.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    messagesArray = JSON.parse(jsonMatch[0]);
+                } else {
+                    throw new Error('No JSON array found');
+                }
+            } catch (e) {
+                messagesArray = aiReplyRaw.split('\n').filter(m => m.trim().length > 0);
+            }
+
+            if (messagesArray.length > 0 && messagesArray[0].startsWith('[状态:')) {
+                let statusMatch = messagesArray[0].match(/\[状态:(.*?)\]/);
+                if (statusMatch) {
+                    const newState = statusMatch[1];
+                    if (statusEl) statusEl.innerText = newState;
+                    
+                    let prof = roleProfiles[currentActiveContactId] || {};
+                    prof.lastState = newState;
+                    roleProfiles[currentActiveContactId] = prof;
+                    localStorage.setItem('chat_role_profiles', JSON.stringify(roleProfiles));
+                }
+                messagesArray.shift();
             } else {
                 if (statusEl) statusEl.innerText = '在线';
             }
-            
-            if (boundStickers.length > 0) {
-                aiReply = aiReply.replace(/\[表情包:(.*?)\]/g, (match, name) => {
-                    const sticker = boundStickers.find(s => s.name === name);
-                    if (sticker) {
-                        return `<img src="${sticker.url}" alt="[表情包:${sticker.name}]" style="max-width:120px; border-radius:8px;">`;
-                    }
-                    return match;
-                });
-            }
 
-            aiReply = aiReply.replace(/\n/g, '<br>');
-            sendMsg('them', aiReply);
+            const sendNextMessage = (index) => {
+                if (index >= messagesArray.length) {
+                    chatAiBtn.innerHTML = originalIcon;
+                    chatAiBtn.disabled = false;
+                    return;
+                }
+
+                let msgText = messagesArray[index];
+                
+                if (boundStickers.length > 0) {
+                    msgText = msgText.replace(/\[表情包:(.*?)\]/g, (match, name) => {
+                        const sticker = boundStickers.find(s => s.name === name);
+                        if (sticker) {
+                            return `<img src="${sticker.url}" alt="[表情包:${sticker.name}]" style="max-width:120px; border-radius:8px;">`;
+                        }
+                        return match;
+                    });
+                }
+                
+                sendMsg('them', msgText);
+
+                if (index < messagesArray.length - 1) {
+                    if (statusEl) statusEl.innerText = '正在输入中...';
+                    setTimeout(() => {
+                        const currentProf = roleProfiles[currentActiveContactId] || {};
+                        if (statusEl) statusEl.innerText = currentProf.lastState || '在线';
+                        setTimeout(() => sendNextMessage(index + 1), 500);
+                    }, 1000 + Math.random() * 1000);
+                } else {
+                    const currentProf = roleProfiles[currentActiveContactId] || {};
+                    if (statusEl) statusEl.innerText = currentProf.lastState || '在线';
+                    chatAiBtn.innerHTML = originalIcon;
+                    chatAiBtn.disabled = false;
+                }
+            };
+
+            if (messagesArray.length > 0) {
+                sendNextMessage(0);
+            } else {
+                chatAiBtn.innerHTML = originalIcon;
+                chatAiBtn.disabled = false;
+            }
 
         } catch (error) {
             console.error('API Call Error:', error);
@@ -1201,6 +1294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rpAvatarPreview.style.backgroundImage = `url('${contact.avatar || ''}')`;
         rpNameDisplay.innerText = contact.name;
         rpDescDisplay.innerText = `${contact.gender || '未知'} | ${contact.age || '未知'}`;
+        document.getElementById('rp-contact-desc').value = contact.desc || '';
         
         // 渲染表情包分组选项
         rpStickerGroupSelect.innerHTML = '<option value="">不绑定</option>';
@@ -1308,8 +1402,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chatConversationPage.classList.add('has-custom-bg');
             document.documentElement.style.setProperty('--chat-bg-color', 'transparent');
         } else {
-            chatConversationPage.style.backgroundImage = `radial-gradient(#d5d5d5 2px, transparent 2px)`;
-            chatConversationPage.style.backgroundSize = '20px 20px';
+            chatConversationPage.style.backgroundImage = 'none';
+            chatConversationPage.style.backgroundColor = '#f8f9fa';
             chatConversationPage.classList.remove('has-custom-bg');
         }
     }
@@ -1328,6 +1422,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     saveRpBtn.addEventListener('click', () => {
         if(!currentActiveContactId) return;
+
+        const contactIndex = contacts.findIndex(c => c.id === currentActiveContactId);
+        if (contactIndex !== -1) {
+            contacts[contactIndex].desc = document.getElementById('rp-contact-desc').value.trim();
+            localStorage.setItem('chat_contacts', JSON.stringify(contacts));
+        }
+
         let profile = roleProfiles[currentActiveContactId] || {};
         profile.wbId = rpWorldbookSelect.value;
         profile.stickerGroupId = rpStickerGroupSelect.value;
@@ -1700,9 +1801,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="contact-item-name">${contact.name || '未命名'}</div>
                     </div>
                 `;
+                item.addEventListener('click', () => {
+                    openEditContactPage(contact);
+                });
                 container.appendChild(item);
             });
         }
+    }
+
+    function openEditContactPage(contact) {
+        editingContactId = contact.id;
+        document.getElementById('contact-input-name').value = contact.name || '';
+        document.getElementById('contact-input-gender').value = contact.gender || '';
+        document.getElementById('contact-input-age').value = contact.age || '';
+        document.getElementById('contact-input-opening').value = contact.opening || '';
+        document.getElementById('contact-input-desc').value = contact.desc || '';
+        currentContactAvatarBase64 = contact.avatar || '';
+        if (currentContactAvatarBase64) {
+            contactAvatarPreview.style.backgroundImage = `url('${currentContactAvatarBase64}')`;
+            contactAvatarPreview.classList.add('has-photo');
+        } else {
+            contactAvatarPreview.style.backgroundImage = 'none';
+            contactAvatarPreview.classList.remove('has-photo');
+        }
+        addContactPage.style.display = 'flex';
+        document.querySelector('.add-contact-header h2').innerText = '编辑人设';
     }
 
     // 渲染聊天列表
@@ -1739,8 +1862,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentActiveContactId = contact.id;
         convHeaderName.innerText = contact.name || '未命名';
         convHeaderAvatar.style.backgroundImage = `url('${contact.avatar || ''}')`;
+        const profile = roleProfiles[contact.id] || {};
         const statusEl = document.getElementById('conv-header-status');
-        if (statusEl) statusEl.innerText = '在线';
+        if (statusEl) statusEl.innerText = profile.lastState || '在线';
         
         // 初始化学人设对话 (如果没有记录，把开场白作为第一条消息)
         if (!messagesData[contact.id]) {
@@ -1755,7 +1879,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        const profile = roleProfiles[contact.id] || {};
         applyChatBackground(profile.chatBg || '');
         applyCustomCss(profile.customCss || '');
 
@@ -1822,11 +1945,85 @@ document.addEventListener('DOMContentLoaded', () => {
             let finalUserAvatar = userAvatarUrl || defaultUserAvatar;
             let avatarDisplayUrl = isMe ? finalUserAvatar : avatarUrl;
 
-            row.innerHTML = `
-                ${checkboxHtml}
-                <div class="msg-avatar" style="${avatarDisplayUrl.startsWith('data:image/svg') ? `background-image: url('${avatarDisplayUrl}'); background-color: #bbb; background-size: 80%; background-repeat: no-repeat;` : `background-image: url('${avatarDisplayUrl}')`}"></div>
-                <div class="msg-bubble" data-index="${i}">${quoteHtml}${msg.text}</div>
-            `;
+            let innerHtml = '';
+            
+            // 解析转账
+            let transferMatch = msg.text.match(/^\[转账:(.*?)\]$/);
+            let isTransfer = false;
+            let isVoice = false;
+            
+            if (transferMatch) {
+                isTransfer = true;
+                let amount = transferMatch[1];
+                let txStatus = msg.txStatus || 'PENDING'; // PENDING, ACCEPTED, REJECTED
+                
+                let actionsHtml = '';
+                let statusText = isMe ? '等待对方收款' : '等待你收款';
+                
+                if (txStatus === 'PENDING') {
+                    if (!isMe) {
+                        actionsHtml = `
+                            <div class="ptc-actions">
+                                <button class="ptc-btn reject" onclick="handleTransfer(${i}, 'REJECTED'); event.stopPropagation();">Reject</button>
+                                <button class="ptc-btn accept" onclick="handleTransfer(${i}, 'ACCEPTED'); event.stopPropagation();">Accept</button>
+                            </div>
+                        `;
+                    }
+                } else if (txStatus === 'ACCEPTED') {
+                    statusText = '已收款';
+                } else if (txStatus === 'REJECTED') {
+                    statusText = '已退回';
+                }
+
+                innerHtml = `
+                    <div class="ptc-card" data-index="${i}">
+                        <div class="ptc-header">
+                            <i class='bx ${txStatus === 'ACCEPTED' ? 'bx-check-circle' : (txStatus === 'REJECTED' ? 'bx-x-circle' : 'bx-lock-alt')}'></i>
+                            <span>${txStatus === 'ACCEPTED' ? 'COMPLETED' : (txStatus === 'REJECTED' ? 'REJECTED' : 'SECURE TRANSFER')}</span>
+                        </div>
+                        <div class="ptc-body">
+                            <div class="ptc-amount">¥${amount}</div>
+                            <div class="ptc-status">${statusText}</div>
+                        </div>
+                        ${actionsHtml}
+                    </div>
+                `;
+            } else {
+                // 解析语音
+                let voiceMatch = msg.text.match(/^\[语音:(.*?):(.*?)\]$/);
+                if (voiceMatch) {
+                    isVoice = true;
+                    let text = voiceMatch[1];
+                    let duration = parseInt(voiceMatch[2]) || 1;
+                    let minW = 70;
+                    let maxW = 220;
+                    let calculatedWidth = Math.min(maxW, minW + (duration * 6));
+                    
+                    innerHtml = `
+                        <div class="voice-bubble" style="width: ${calculatedWidth}px;" onclick="toggleVoiceText(this); event.stopPropagation();">
+                            <i class='bx bx-wifi voice-icon'></i>
+                            <span>${duration}"</span>
+                        </div>
+                        <div class="voice-text-result">${text}</div>
+                    `;
+                } else {
+                    innerHtml = `<div class="msg-bubble" data-index="${i}">${quoteHtml}${msg.text}</div>`;
+                }
+            }
+
+            if (isTransfer || isVoice) {
+                row.innerHTML = `
+                    ${checkboxHtml}
+                    <div class="msg-avatar" style="${avatarDisplayUrl.startsWith('data:image/svg') ? `background-image: url('${avatarDisplayUrl}'); background-color: #bbb; background-size: 80%; background-repeat: no-repeat;` : `background-image: url('${avatarDisplayUrl}')`}"></div>
+                    <div class="msg-bubble-col" data-index="${i}" style="position:relative;">${innerHtml}</div>
+                `;
+            } else {
+                row.innerHTML = `
+                    ${checkboxHtml}
+                    <div class="msg-avatar" style="${avatarDisplayUrl.startsWith('data:image/svg') ? `background-image: url('${avatarDisplayUrl}'); background-color: #bbb; background-size: 80%; background-repeat: no-repeat;` : `background-image: url('${avatarDisplayUrl}')`}"></div>
+                    ${innerHtml}
+                `;
+            }
             
             row.addEventListener('click', (e) => {
                 if (isMultiSelectMode) {
@@ -1853,6 +2050,23 @@ document.addEventListener('DOMContentLoaded', () => {
             convMsgInput.value = '';
         }
     });
+
+    // 全局方法挂载 (语音与转账交互)
+    window.toggleVoiceText = function(element) {
+        const textResult = element.nextElementSibling;
+        if(textResult && textResult.classList.contains('voice-text-result')) {
+            textResult.classList.toggle('show');
+        }
+    };
+    
+    window.handleTransfer = function(index, status) {
+        if (!currentActiveContactId) return;
+        if (messagesData[currentActiveContactId] && messagesData[currentActiveContactId][index]) {
+            messagesData[currentActiveContactId][index].txStatus = status;
+            localStorage.setItem('chat_messages', JSON.stringify(messagesData));
+            renderMessages();
+        }
+    };
 
     function sendMsg(sender, text) {
         if(!currentActiveContactId) return;
@@ -1955,7 +2169,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 添加联系人页面逻辑
     addContactBtn.addEventListener('click', () => {
+        editingContactId = null;
         addContactPage.style.display = 'flex';
+        document.querySelector('.add-contact-header h2').innerText = '添加人设';
         // 清空表单
         document.getElementById('contact-input-name').value = '';
         document.getElementById('contact-input-gender').value = '';
@@ -1987,20 +2203,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('contact-input-name').value.trim();
         if (!name) { alert('请输入姓名'); return; }
         
-        const newContact = {
-            id: 'c_' + Date.now(),
-            name: name,
-            gender: document.getElementById('contact-input-gender').value.trim(),
-            age: document.getElementById('contact-input-age').value.trim(),
-            opening: document.getElementById('contact-input-opening').value.trim(),
-            desc: document.getElementById('contact-input-desc').value.trim(),
-            avatar: currentContactAvatarBase64
-        };
+        if (editingContactId) {
+            const contactIndex = contacts.findIndex(c => c.id === editingContactId);
+            if (contactIndex !== -1) {
+                contacts[contactIndex].name = name;
+                contacts[contactIndex].gender = document.getElementById('contact-input-gender').value.trim();
+                contacts[contactIndex].age = document.getElementById('contact-input-age').value.trim();
+                contacts[contactIndex].opening = document.getElementById('contact-input-opening').value.trim();
+                contacts[contactIndex].desc = document.getElementById('contact-input-desc').value.trim();
+                contacts[contactIndex].avatar = currentContactAvatarBase64;
+            }
+        } else {
+            const newContact = {
+                id: 'c_' + Date.now(),
+                name: name,
+                gender: document.getElementById('contact-input-gender').value.trim(),
+                age: document.getElementById('contact-input-age').value.trim(),
+                opening: document.getElementById('contact-input-opening').value.trim(),
+                desc: document.getElementById('contact-input-desc').value.trim(),
+                avatar: currentContactAvatarBase64
+            };
+            contacts.push(newContact);
+        }
         
-        contacts.push(newContact);
         localStorage.setItem('chat_contacts', JSON.stringify(contacts));
         
         renderContacts();
+        renderChatList();
         addContactPage.style.display = 'none';
     });
 
